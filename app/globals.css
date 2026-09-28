@@ -1,15 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #c0bda5;
   --foreground: #171717;
 }
 
-@theme inline {
+@theme{
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-lightblue: #01a9ea;
+  --color-darkblue: #012676;
+  --color-novingray: #c0bda5;
+  --color-novinblack: #07020d;
+  --color-novingreen: #345830;
+  --color-novinmutedblue: #427aa1;
+  --color-novinlightblue: #00abe7;
+  --color-novinred: #fa003f;
+  --color-novinpink: #f15152;
+  --color-novinemutedgreen: #466365;
+
+}
+@theme inline {
+  --font-ghasem: var(--font-ghasem);
+  --font-boom: var(--font-boom);
+  --font-negarregular: var(--font-negarregular);
+  --font-negarbold: var(--font-negarbold);
+  --font-mikhakregular: var(--font-mikhakregular);
+  --font-mikhaklight: var(--font-mikhaklight);
+  --font-mikhakmedium: var(--font-mikhakmedium);
+  --font-mikhakbold: var(--font-mikhakbold);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +41,114 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Mikhak Medium" , "A Ghasem", Arial, sans-serif;
+}
+
+
+
+
+/* =========================================
+   Iris Scanner Background
+   ========================================= */
+
+@keyframes irisRotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes irisRotateReverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes irisScan {
+  0% {
+    transform: translateY(-350px);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+
+  85% {
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: translateY(350px);
+    opacity: 0;
+  }
+}
+
+@keyframes irisPulse {
+  0%,
+  100% {
+    transform: scale(0.98);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+.iris-ring-outer {
+  animation: irisRotate 45s linear infinite;
+}
+
+.iris-ring-dashed {
+  animation: irisRotateReverse 30s linear infinite;
+}
+
+.iris-ring-main {
+  animation: irisRotate 22s linear infinite;
+}
+
+.iris-arc {
+  animation: irisRotate 12s linear infinite;
+}
+
+.iris-scan {
+  animation: irisScan 6s ease-in-out infinite;
+}
+
+.iris-fibers {
+  animation: irisPulse 6s ease-in-out infinite;
+
+  background:
+          repeating-conic-gradient(
+                  from 0deg,
+                  rgba(80, 210, 255, 0.38) 0deg 1deg,
+                  transparent 1deg 5deg
+          );
+
+  mask-image: radial-gradient(
+          circle,
+          transparent 0 18%,
+          black 19% 72%,
+          transparent 73%
+  );
+
+  -webkit-mask-image: radial-gradient(
+          circle,
+          transparent 0 18%,
+          black 19% 72%,
+          transparent 73%
+  );
 }
