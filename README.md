@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# کلینیک نوین دیدگان - سامانه کیوسک نوبت‌دهی
 
-## Getting Started
+این پروژه یک اپلیکیشن Next.js برای مدیریت نوبت‌دهی بیماران در کلینیک فوق‌تخصصی نوین دیدگان است. هدف اصلی، کاهش ازدحام پذیرش، ساده‌سازی فرایند ثبت نوبت و ایجاد تجربه‌ای سریع و تمیز برای مراجعه‌کنندگان است.
 
-First, run the development server:
+## ویژگی‌های اصلی
+
+- ثبت نوبت جدید برای بیمار
+- جستجوی نوبت قبلی
+- انتخاب تخصص و پزشک
+- ثبت ملیت و اطلاعات اولیه بیمار
+- بررسی سابقه جراحی
+- استفاده از رابط فارسی و RTL
+- طراحی مناسب برای صفحه لمسی و مانیتورهای بزرگ
+- پشتیبانی از استایل glassmorphism و پس‌زمینه پزشکی
+
+## تکنولوژی مورد استفاده
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- ESLint
+
+## ساختار پروژه
+
+```text
+app/
+  api/
+    kiosk/
+components/
+  kiosk/
+  ui/
+lib/
+  kiosk/
+  utils/
+  validators/
+public/
+fonts/
+data/
+types/
+```
+
+## اجرای محلی
+
+1. وابستگی‌ها را نصب کنید:
+
+```bash
+npm install
+```
+
+2. سرور توسعه را اجرا کنید:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. برنامه را در مرورگر باز کنید:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## اسکریپت‌های موجود
 
-## Learn More
+```bash
+npm run dev    # اجرای حالت توسعه
+npm run build  # ساخت پروژه برای production
+npm run start # اجرای build تولید شده
+npm run lint   # بررسی کد با ESLint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## نکات پروژه
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- رابط کاربر به‌صورت RTL و فارسی طراحی شده است.
+- فونت‌های اختصاصی پروژه داخل پوشه fonts قرار دارند.
+- این سامانه به صورت محلی و داخل کلینیک برای جریان نوبت‌دهی حضوری طراحی شده است.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## توسعه و مشارکت
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+برای توسعه بیشتر، می‌توانید فرایندهای اصلی کیوسک را در مسیرهای مربوط به components و lib بررسی کنید. ساختار پروژه طوری طراحی شده که منطق مجزا، UI مجزا و سرویس‌های مرتبط در فایل‌های مستقل قرار گرفته‌اند.
