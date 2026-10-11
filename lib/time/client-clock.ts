@@ -17,7 +17,7 @@ export async function syncServerTime(): Promise<void> {
 
     const json = await response.json();
 
-    if (!json?.success || typeof json?.date?.serverTime !== "string") {
+    if (!json?.success || typeof json?.data?.serverTime !== "string") {
         throw new Error("پاسخ ساعت سرور معتبر نیست");
     }
 

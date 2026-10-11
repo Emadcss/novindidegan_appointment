@@ -26,6 +26,7 @@ import type {
   Specialty,
 } from "@/types/kiosk";
 import {getDoctorById, getSpecialtyById} from "@/lib/kiosk/kiosk-service";
+import {createAppointment} from "@/lib/kiosk/appointment-service";
 
 
 
@@ -752,11 +753,33 @@ export default function Kiosk() {
 
       case "printing":
         return (
-            <Placeholder
-                title="مرحله چاپ قبض هنوز به چاپگر متصل نشده است"
-                description="پس از اتصال سرویس ثبت نوبت و چاپگر، قبض نوبت در این مرحله چاپ خواهد شد."
-                onRestart={resetKiosk}
-            />
+            async function finalizeNewAppointment(hasSurgeryHistory: boolean | null) {
+              if (!specialty || !doctor || !nationality) return;
+
+              setStep("submitting");
+              setSubmitError(null);
+
+              const result = await createAppointment({
+                specialtyId: specialty.id,
+                doctorId: doctor.id,
+                nationality,
+                nationalId: nationality === "iranian" ? nationalId : null,
+                mobile: nationality === "foreign" ? mobile : null,
+                hasSurgeryHistory,
+              });
+
+              if (!result.success || !result.data) {
+                setSubmitError(result.message ?? "خطا در ثبت نوبت");
+                setStep("submit-error");
+                return;
+              }
+
+              setAppointmentId(result.data.appointmentId);
+              setAppointmentNumber(result.data.appointmentNumber);
+              setAppointmentDate(result.data.appointmentDate);
+              setAppointmentTime(result.data.appointmentTime);
+              setStep("printing-success");
+            }
         );
 
       default:

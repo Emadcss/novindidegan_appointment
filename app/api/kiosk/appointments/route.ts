@@ -84,12 +84,28 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("POST /api/kiosk/appointments error", error);
 
+        const message =
+            error instanceof Error && error.message
+                ? error.message
+                : "خطا در ایجاد نوبت";
+
+        //throw error 400
+        const businessErrors = [
+            "کد ملی یا شماره موبایل الزامی است",
+            "تخصص معتبر نیست",
+            "پزشک معتبر نیست",
+            "پزشک برای امروز برنامه حضور ندارد",
+            "در حال حاضر خارج از ساعت حضور پزشک است",
+        ];
+
+        const status = businessErrors.includes(message) ? 400 : 500;
+
         return NextResponse.json(
             {
                 success: false,
-                message: "خطا در ایجاد نوبت",
+                message,
             },
-            { status: 500 }
+            { status }
         );
     }
 }
