@@ -59,21 +59,21 @@ export default function MobileForm({
     normalizeDigits(value)
     );
 
-    const [showIncompleteHint, setShowIncompleteHint] =
-        useState(false);
+    const [hintForMobile, setHintForMobile] =
+        useState<string | null>(null);
 
     const isComplete =
         mobile.length === MAX_LENGTH;
-
     const isValid =
         isComplete && isValidIranianMobile(mobile);
-
     const isInvalidComplete =
         isComplete && !isValid;
+    const showIncompleteHint =
+        hintForMobile === mobile &&
+        mobile.length > 0 &&
+        !isComplete;
 
     useEffect(() => {
-        setShowIncompleteHint(false);
-
         if (
             mobile.length === 0 ||
             isComplete
@@ -81,11 +81,13 @@ export default function MobileForm({
             return;
         }
 
-        const timer = setTimeout(() => {
-            setShowIncompleteHint(true);
+        const valueAtStart = mobile;
+
+        const timer = window.setTimeout(() => {
+            setHintForMobile(valueAtStart);
         }, INCOMPLETE_HINT_DELAY);
 
-        return () => clearTimeout(timer);
+        return () => window.clearTimeout(timer);
     }, [mobile, isComplete]);
 
     function handleChange(nextValue: string) {

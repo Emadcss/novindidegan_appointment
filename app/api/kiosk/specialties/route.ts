@@ -1,23 +1,19 @@
 import {NextResponse} from "next/server";
 import {
-    getAvailableSpecialtiesForDate, getSpecialtyById
+    getAvailableSpecialtiesForDate,
 } from "@/lib/kiosk/kiosk-service";
+import { getServerNow } from "@/lib/time/server-clock";
 
 export async function GET() {
     try {
         const specialties =
-            getAvailableSpecialtiesForDate(new Date());
+            getAvailableSpecialtiesForDate(getServerNow());
 
         return NextResponse.json({
             success: true,
             data: specialties,
         });
-    } catch (error) {
-        console.error(
-            "Get /api/kiosk/specialties error:",
-            error
-        );
-
+    } catch {
         return NextResponse.json(
             {
                 success: false,

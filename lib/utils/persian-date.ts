@@ -1,4 +1,5 @@
 // lib/persian-date.ts
+import { APP_TIMEZONE } from "@/lib/time/constants";
 
 type DateInput = string | number | Date | null | undefined;
 
@@ -14,6 +15,7 @@ export function formatPersianDateFull(value: DateInput): string {
     if (!date) return "";
 
     const parts =  new Intl.DateTimeFormat("fa-IR", {
+        timeZone: APP_TIMEZONE,
         calendar: "persian",
         weekday: "long",
         day: "numeric",
@@ -35,6 +37,7 @@ export function formatPersianDate(value: DateInput): string {
     if (!date) return "";
 
     return new Intl.DateTimeFormat("fa-IR", {
+        timeZone: APP_TIMEZONE,
         calendar: "persian",
         year: "numeric",
         month: "2-digit",
@@ -48,6 +51,7 @@ export function formatPersianTimeWithSeconds(value: DateInput): string {
     if (!date) return "";
 
     return new Intl.DateTimeFormat("fa-IR", {
+        timeZone: APP_TIMEZONE,
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -61,6 +65,7 @@ export function formatPersianTime(value: DateInput): string {
     if (!date) return "";
 
     return new Intl.DateTimeFormat("fa-IR", {
+        timeZone: APP_TIMEZONE,
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,

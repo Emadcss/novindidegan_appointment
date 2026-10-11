@@ -57,23 +57,27 @@ export default function NationalIdForm({
                                        }: NationalIdFormProps) {
     const [nationalId, setNationalId] =
         useState(() => normalizeDigits(value));
-    const [showIncompleteHint, setShowIncompleteHint] = useState(false);
+    const [hintForNationalId, setHintForNationalId] =
+        useState<string | null>(null);
 
     const isComplete = nationalId.length === MAX_LENGTH;
     const isValid = isComplete && isValidIranianNationalId(nationalId);
     const isInvalidComplete = isComplete && !isValid;
+    const showIncompleteHint =
+        hintForNationalId === nationalId &&
+        nationalId.length > 0 &&
+        !isComplete;
 
     useEffect(() => {
-        setShowIncompleteHint(false);
         if (nationalId.length === 0 || isComplete) {
             return;
         }
 
-        const timer = setTimeout(() => {
-            setShowIncompleteHint(true);
+        const timer = window.setTimeout(() => {
+            setHintForNationalId(nationalId);
         }, INCOMPLETE_HINT_DELAY);
 
-        return () => clearTimeout(timer);
+        return () => window.clearTimeout(timer);
     }, [nationalId, isComplete]);
 
     function handleChange(nextValue: string) {

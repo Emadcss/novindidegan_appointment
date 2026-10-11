@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { APP_TIMEZONE } from "@/lib/time/constants";
+import { getServerNow } from "@/lib/time/server-clock";
 
 export async function GET() {
-    const now = new Date();
+    const now = getServerNow();
 
     return NextResponse.json({
         success: true,

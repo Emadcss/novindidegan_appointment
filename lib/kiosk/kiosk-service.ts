@@ -12,6 +12,8 @@ import type {
     Specialty,
 } from "@/types/kiosk";
 
+import { getServerNow } from "@/lib/time/server-clock";
+
 /**
  * تمام تخصص‌های فعال مرکز
  */
@@ -30,7 +32,7 @@ export function getActiveSpecialties(): Specialty[] {
  */
 export function getAvailableDoctorsForSpecialty(
     specialtyId: number,
-    date: Date = new Date()
+    date: Date = getServerNow(),
 ): Doctor[] {
     return doctors
         .filter((doctor) => {
@@ -54,7 +56,7 @@ export function getAvailableDoctorsForSpecialty(
 }
 
 export function getAvailableSpecialtiesForDate(
-    date: Date = new Date()
+    date: Date = getServerNow(),
 ): Specialty[] {
     return specialties
         .filter((specialty) => {

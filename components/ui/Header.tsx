@@ -8,7 +8,7 @@ import {
   getServerNow,
   isServerTimeSynced,
     syncServerTime,
-} from "@/lib/time/server-clock";
+} from "@/lib/time/client-clock";
 import { SERVER_TIME_RESYNC_MS } from "@/lib/time/constants";
 
 type HeaderProps = {

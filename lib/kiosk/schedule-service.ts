@@ -4,7 +4,12 @@ import {
     scheduleExceptions,
 } from "@/data/kiosk-data";
 import { getServerNow } from "@/lib/time/server-clock";
-import { APP_TIMEZONE } from "@/lib/time/constants";
+import {
+    getTehranDateKey as formatDate,
+    getTehranWeekday as getWeekday,
+    getTehranTime,
+    timeToSeconds
+} from "@/lib/time/tehran-time";
 
 import type {
     DoctorSchedule,
@@ -20,67 +25,6 @@ type TimeRange = {
 function getTehranNow(): Date {
     // یا از DB: SELECT NOW() AT TIME ZONE 'Asia/Tehran'
     return getServerNow();
-}
-
-function getTehranDateParts(date: Date) {
-    const parts = new Intl.DateTimeFormat("en-Us",{
-        timeZone: APP_TIMEZONE,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        weekday: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hourCycle: "h23",
-    }).formatToParts(date);
-
-    return Object.fromEntries(
-        parts
-            .filter((part) => part.type !== "literal")
-            .map((part) => [part.type, part.value])
-    ) as Record<string, string>;
-}
-
-function formatDate(date: Date): string {
-    const parts = getTehranDateParts(date);
-
-    return `${parts.year}-${parts.month}-${parts.day}`;
-}
-
-function getWeekday(date: Date): number {
-    const weekday = getTehranDateParts(date).weekday;
-    const weekdays: Record<string, number> = {
-        Sat: 0,
-        Sun: 1,
-        Mon: 2,
-        Tue: 3,
-        Wed: 4,
-        Thu: 5,
-        Fri: 6,
-    };
-
-    return weekdays[weekday];
-}
-
-function getTehranTime(date: Date): string {
-    const parts = getTehranDateParts(date);
-
-    return `${parts.hour}:${parts.minute}:${parts.second}`;
-}
-
-function timeToMinutes(time: string): number {
-    const [hours, minute] = time.split(":").map(Number);
-
-    return hours * 60 + minute;
-}
-
-function timeToSeconds(time: string): number {
-    const [hours, minutes, seconds = 0] = time
-        .split(":")
-        .map(Number);
-
-    return hours * 3600 + minutes * 60 + seconds;
 }
 
 function isTimeInRange(
