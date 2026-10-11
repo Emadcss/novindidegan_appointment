@@ -27,6 +27,7 @@ import type {
 } from "@/types/kiosk";
 import {getDoctorById, getSpecialtyById} from "@/lib/kiosk/kiosk-service";
 import {createAppointment} from "@/lib/kiosk/appointment-service";
+import {createAppointmentApi} from "@/lib/kiosk/api-client";
 
 
 
@@ -60,6 +61,11 @@ export default function Kiosk() {
   const [appointmentId, setAppointmentId] =
     useState<number | null>(null);
 
+  const [appointmentNumber, setAppointmentNumber] = useState<number | null>(null);
+  const [appointmentDate, setAppointmentDate] = useState<string | null>(null);
+  const [appointmentTime, setAppointmentTime] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   // --------------------------------------------------
   // Reset session
   // --------------------------------------------------
@@ -74,6 +80,10 @@ export default function Kiosk() {
     setMobile("");
     setHasSurgeryHistory(null);
     setAppointmentId(null);
+    setAppointmentNumber(null);
+    setAppointmentDate(null);
+    setAppointmentTime(null);
+    setSubmitError(null);
   }, []);
 
   // --------------------------------------------------
@@ -328,6 +338,8 @@ export default function Kiosk() {
     setStep("mobile");
   }
 
+
+
   // --------------------------------------------------
   // Identity form completed
   // --------------------------------------------------
@@ -350,10 +362,40 @@ export default function Kiosk() {
       setStep("surgery-history");
       return;
     }
+    void finalizeNewAppointment(null)
 
-    // موقت: تا اتصال API، فقط صفحه چاپ نمایش داده می‌شود.
-    // بعداً اینجا باید createAppointment اجرا شود.
-    setStep("printing")
+    async function finalizeNewAppointment(
+        surgeryHistory: boolean | null) {
+      if (!specialty || !doctor || !nationality) {
+        setSubmitError("اطلاعات نوبت ناقص است")
+        setStep("submit-error");
+        return
+      }
+
+      setSubmitError(null);
+      setStep("submitting");
+
+      const result = await createAppointmentApi({
+        specialtyId: specialty.id,
+        doctorId: doctor.id,
+        nationality,
+        nationalId: nationality === "iranian" ? nationalId : null,
+        mobile: nationality === "foreign" ? mobile : null,
+        hasSurgeryHistory: surgeryHistory,
+      });
+
+      if (!result.success || !result.data) {
+        setSubmitError(result.message ?? "خطا در ثبت نوبت");
+        setStep("submit-error");
+        return;
+      }
+
+      setAppointmentId(result.data.appointmentId);
+      setAppointmentNumber(result.data.appointmentNumber);
+      setAppointmentDate(result.data.appointmentDate);
+      setAppointmentTime(result.data.appointmentTime);
+      setStep("print-success");
+    }
   }
 
   // --------------------------------------------------
@@ -736,7 +778,7 @@ export default function Kiosk() {
         return (
             <SurgeryHistory
                 onSelect={(value) => {
-                  setHasSurgeryHistory(value);
+                  void finalizeNewAppointment(value);
 
                   // موقت: بعداً باید ثبت نوبت یا ادامه فرایند
                   // چاپ قبض واقعی انجام شود.
@@ -751,39 +793,38 @@ export default function Kiosk() {
       // Printing
       // ----------------------------------------------
 
-      case "printing":
+      case "submitting":
         return (
-            async function finalizeNewAppointment(hasSurgeryHistory: boolean | null) {
-              if (!specialty || !doctor || !nationality) return;
-
-              setStep("submitting");
-              setSubmitError(null);
-
-              const result = await createAppointment({
-                specialtyId: specialty.id,
-                doctorId: doctor.id,
-                nationality,
-                nationalId: nationality === "iranian" ? nationalId : null,
-                mobile: nationality === "foreign" ? mobile : null,
-                hasSurgeryHistory,
-              });
-
-              if (!result.success || !result.data) {
-                setSubmitError(result.message ?? "خطا در ثبت نوبت");
-                setStep("submit-error");
-                return;
-              }
-
-              setAppointmentId(result.data.appointmentId);
-              setAppointmentNumber(result.data.appointmentNumber);
-              setAppointmentDate(result.data.appointmentDate);
-              setAppointmentTime(result.data.appointmentTime);
-              setStep("printing-success");
-            }
+            <AppointmentResult
+                status="loading"
+                onHome={resetKiosk}
+            />
         );
 
-      default:
-        return null;
+      case "print-success":
+        return (
+            <AppointmentResult
+                status="success"
+                appointmentNumber={appointmentNumber}
+                appointmentDate={appointmentDate}
+                appointmentTime={appointmentTime}
+                doctorName={doctor?.displayName}
+                specialtyName={specialty?.name}
+                onHome={resetKiosk}
+            />
+        );
+
+      case "submit-error":
+        return (
+            <AppointmentResult
+                status="error"
+                message={submitError}
+                onRetry={() => {
+                  void finalizeNewAppointment(hasSurgeryHistory);
+                }}
+                onHome={resetKiosk}
+            />
+        );
     }
   }
 

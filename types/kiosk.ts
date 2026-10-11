@@ -14,7 +14,10 @@ export type KioskStep =
     | "previous-lookup"
     | "previous-not-found"
     | "surgery-history"
-    | "printing";
+    | "printing"
+    | "submitting"
+    | "print-success"
+    | "submit-error";
 
 export type Specialty = {
     id: number;

@@ -98,70 +98,71 @@ export const doctors: Doctor[] = [
 ];
 
 export const doctorSchedules: DoctorSchedule[] = [
-    {
-        id: 1,
+    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
+        id: index + 1,
         doctorId: 1,
-        weekday: 6,
+        weekday,
         startTime: "08:00",
-        endTime: "12:00",
+        endTime: "20:00",
         validFrom: "2026-01-01",
         validUntil: null,
         isActive: true,
-    },
-    {
-        id: 2,
-        doctorId: 1,
-        weekday: 1,
-        startTime: "14:00",
-        endTime: "18:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    },
+    })),
 
-    {
-        id: 3,
+    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
+        id: index + 8,
         doctorId: 2,
-        weekday: 6,
+        weekday,
         startTime: "14:00",
         endTime: "18:00",
         validFrom: "2026-01-01",
         validUntil: null,
         isActive: true,
-    },
+    })),
 
-    {
-        id: 4,
+    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
+        id: index + 15,
         doctorId: 3,
-        weekday: 2,
+        weekday,
+        startTime: "09:00",
+        endTime: "18:00",
+        validFrom: "2026-01-01",
+        validUntil: null,
+        isActive: true,
+    })),
+
+    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
+        id: index + 22,
+        doctorId: 4,
+        weekday,
         startTime: "09:00",
         endTime: "13:00",
         validFrom: "2026-01-01",
         validUntil: null,
         isActive: true,
-    },
+    })),
 
-    {
-        id: 5,
-        doctorId: 4,
-        weekday: 3,
+    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
+        id: index + 29,
+        doctorId: 5,
+        weekday,
         startTime: "10:00",
         endTime: "14:00",
         validFrom: "2026-01-01",
         validUntil: null,
         isActive: true,
-    },
+    })),
 
-    {
-        id: 6,
-        doctorId: 5,
-        weekday: 4,
+    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
+        id: index + 32,
+        doctorId: 6,
+        weekday,
         startTime: "15:00",
         endTime: "19:00",
         validFrom: "2026-01-01",
         validUntil: null,
         isActive: true,
-    },
+    })),
 ];
 
 export const scheduleExceptions: ScheduleException[] = [];
