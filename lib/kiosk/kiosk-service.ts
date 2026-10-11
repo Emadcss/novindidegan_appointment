@@ -3,9 +3,7 @@ import {
     specialties,
 } from "@/data/kiosk-data";
 
-import {
-    isDoctorScheduledToday,
-} from "@/lib/kiosk/schedule-service";
+import { isDoctorAvailableNow } from "@/lib/kiosk/schedule-service";
 
 import type {
     Doctor,
@@ -44,7 +42,7 @@ export function getAvailableDoctorsForSpecialty(
                 return false;
             }
 
-            return isDoctorScheduledToday(
+            return isDoctorAvailableNow(
                 doctor.id,
                 date
             );
@@ -73,7 +71,7 @@ export function getAvailableSpecialtiesForDate(
                     return false;
                 }
 
-                return isDoctorScheduledToday(
+                return isDoctorAvailableNow(
                     doctor.id,
                     date
                 );

@@ -1,6 +1,7 @@
-"use client"
 
-type  NumericKeypadProps = {
+"use client";
+
+type NumericKeypadProps = {
     value: string;
     onChange: (value: string) => void;
     maxLength?: number;
@@ -39,18 +40,18 @@ function BackspaceIcon() {
 }
 
 export default function NumericKeypad({
-    value,
-    onChange,
-    maxLength = 11,
-    onSubmit,
-    disabled = false,
-    loading = false,
-    submitEnabled,
-    submitLabel = "تایید",
-    loadingLabel = "در حال بررسی...",
-
+                                          value,
+                                          onChange,
+                                          maxLength = 11,
+                                          onSubmit,
+                                          disabled = false,
+                                          loading = false,
+                                          submitEnabled,
+                                          submitLabel = "تایید",
+                                          loadingLabel = "در حال بررسی...",
                                       }: NumericKeypadProps) {
     const isDisabled = disabled || loading;
+
     const canSubmit =
         !isDisabled &&
         !!onSubmit &&
@@ -58,16 +59,19 @@ export default function NumericKeypad({
 
     function handlePress(key: string) {
         if (isDisabled) return;
+
         if (key === "backspace") {
             onChange(value.slice(0, -1));
             return;
         }
+
         if (key === "submit") {
             if (canSubmit) onSubmit?.();
             return;
         }
 
         if (value.length >= maxLength) return;
+
         onChange(value + key);
     }
 
@@ -77,6 +81,7 @@ export default function NumericKeypad({
                 {KEYS.flat().map((key) => {
                     const isBackspace = key === "backspace";
                     const isSubmit = key === "submit";
+                    const isNumber = !isBackspace && !isSubmit;
 
                     return (
                         <button
@@ -97,8 +102,6 @@ export default function NumericKeypad({
                                 justify-center
                                 rounded-full
                                 border
-                                text-2xl
-                                font-bold
                                 transition-all
                                 active:scale-95
                                 disabled:opacity-35
@@ -108,22 +111,28 @@ export default function NumericKeypad({
                                 before:rounded-full
                                 before:content-['']
                                 ${
-                                    isSubmit
-                                        ? "border-darkblue/40 bg-darkblue text-white hover:brightness-110"
-                                        : isBackspace
-                                            ? "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
-                                            : "border-white/20 bg-white/10 text-white hover:bg-white/15"
-                             }
-                           `}
-                            >
-                                {isBackspace && <BackspaceIcon />}
+                                isNumber
+                                    ? "font-mikhakbold text-3xl tabular-nums"
+                                    : "font-mikhakbold"
+                            }
+                                ${
+                                isSubmit
+                                    ? "border-darkblue/40 bg-darkblue text-white hover:brightness-110"
+                                    : isBackspace
+                                        ? "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
+                                        : "border-white/20 bg-white/10 text-white hover:bg-white/15"
+                            }
+                            `}
+                        >
+                            {isBackspace && <BackspaceIcon />}
 
-                                {isSubmit && (
-                                    <span className="px-1 text-center text-sm font-bold leading-none">
-                                        {loading ? loadingLabel : submitLabel}
-                                    </span>
-                                )}
-                                {!isBackspace && !isSubmit && key}
+                            {isSubmit && (
+                                <span className="px-1 text-center text-sm font-mikhakbold leading-none">
+                                    {loading ? loadingLabel : submitLabel}
+                                </span>
+                            )}
+
+                            {isNumber && key}
                         </button>
                     );
                 })}

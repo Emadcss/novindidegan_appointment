@@ -2,6 +2,7 @@
 
 import KioskNavigation from "@/components/ui/KioskNavigation";
 import type { PreviousAppointmentLookupResult } from "@/types/kiosk";
+import { toPersianDigits } from "@/lib/utils/persian-digits";
 
 type PreviousAppointmentLookupProps = {
     identifierLabel: "شماره موبایل" | "کد ملی"
@@ -77,7 +78,7 @@ export default function PreviousAppointmentLookup({
                     dir="ltr"
                     className="mt-2 font-mono text-2xl font-bold tracking-wider"
                 >
-                    {identifier}
+                    {toPersianDigits(identifier)}
                 </p>
             </div>
 

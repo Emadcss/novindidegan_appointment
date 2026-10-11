@@ -1,5 +1,7 @@
 "use client";
 
+import { toPersianDigits } from "@/lib/utils/persian-digits";
+
 export type ProgressItem = {
     id: string;
     label: string;
@@ -37,8 +39,8 @@ export default function  KioskProgress({
                             {index > 0 && (
                                 <span
                                     aria-hidden="true"
-                                    className={`absolute right-1/2 top-5 h-0.5 w-full ${
-                                        completed
+                                    className={`absolute left-1/2 top-5 z-0 h-0.5 w-full ${
+                                        index <= activeIndex
                                             ? `bg-emerald-400/80`
                                             : "bg-white/20"
                                     }`}
@@ -48,13 +50,13 @@ export default function  KioskProgress({
                             {/* شماره یا تیک مرحله */}
                             <span
                                 className={[
-                                    "relative z10 flex h-10 w-10 shrink-0",
+                                    "relative z-10 flex h-10 w-10 shrink-0",
                                     "items-center justify-center rounded-full border-2",
-                                    "text-sm font-bold translation-colors duration-200",
+                                    "text-sm font-bold transition-colors duration-200",
                                     completed
                                         ? "border-emerald-400 bg-emerald-500 text-white"
                                         : active
-                                            ? "border-t-lightblue bg-lightblue text-white shadow-lg shadow-lightblue/25"
+                                            ? "border-lightblue bg-lightblue text-white shadow-lg shadow-lightblue/25"
                                             : "border-white/25 bg-slate-900/30 text-white/45",
                                 ].join(" ")}
                             >
@@ -72,14 +74,14 @@ export default function  KioskProgress({
                                         <path d="m5 12 4 4L19 6" />
                                     </svg>
                                 ) : (
-                                    index + 1
+                                   toPersianDigits(index + 1)
                                 )}
                             </span>
 
                             {/* عنوان مرحله */}
                             <span
                                 className={[
-                                    "mt-2 max-w-full px-1 text-center",
+                                    "mt-2 min-h-10 max-w-full px-1 text-center",
                                     "text-[11px] leading-5 sm:text-sm",
                                     active
                                         ? "font-bold text-white"

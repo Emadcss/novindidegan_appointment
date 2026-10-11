@@ -1,5 +1,8 @@
 "use client";
 
+import {formatPersianDateFull} from "@/lib/utils/persian-date";
+import {toPersianDigits} from "@/lib/utils/persian-digits";
+
 type AppointmentResultProps = {
     status: "loading" | "success" | "error";
     message?: string | null;
@@ -46,13 +49,13 @@ export default function AppointmentResult({
                             {appointmentNumber != null && (
                                 <p>
                                     شماره نوبت:{" "}
-                                    <span className="font-bold">{appointmentNumber}</span>
+                                    <span className="font-bold">{toPersianDigits(appointmentNumber)}</span>
                                 </p>
                             )}
                             {specialtyName && <p>تخصص: {specialtyName}</p>}
                             {doctorName && <p>پزشک: {doctorName}</p>}
-                            {appointmentDate && <p>تاریخ: {appointmentDate}</p>}
-                            {appointmentTime && <p>ساعت: {appointmentTime}</p>}
+                            {appointmentDate && <p>تاریخ: {formatPersianDateFull(appointmentDate)}</p>}
+                            {appointmentTime && <p>ساعت: {toPersianDigits(appointmentTime)}</p>}
                         </div>
 
                         <p className="mt-6 max-w-xl text-base text-white/65">

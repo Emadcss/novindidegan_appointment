@@ -619,9 +619,18 @@ export default function Kiosk() {
           <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
             <Header compact={step !== "welcome"} />
 
-            <div className="flex flex-1 flex-col justify-center py-3">
-              {shouldShowProgress && (
-                  <div className="mx-auto mb-8 w-full max-w-5xl">
+            <div className="flex flex-1 flex-col py-3">
+              {/* جای ثابت پروگرس‌بار */}
+              <div
+                  className={`
+                    mx-auto
+                    w-full
+                    max-w-5xl
+                    shrink-0
+                    ${shouldShowProgress ? "h-24" : "h-0"}
+                  `}
+              >
+                {shouldShowProgress && (
                     <KioskProgress
                         items={progressItems}
                         activeIndex={Math.min(
@@ -629,10 +638,12 @@ export default function Kiosk() {
                             progressItems.length - 1
                         )}
                     />
-                  </div>
-              )}
+                )}
+              </div>
 
-              <div className="w-full">{renderStep()}</div>
+              <div className="flex w-full flex-1 items-center justify-center">
+                {renderStep()}
+              </div>
             </div>
           </div>
         </div>
