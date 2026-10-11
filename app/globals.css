@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #c0bda5;
-  --foreground: #171717;
+  --kiosk-void: #020a1a;
+  --kiosk-panel: #0b1a33;
+  --kiosk-clinical: #01a9ea;
+  --kiosk-navy: #012676;
+  --kiosk-soft: #e8f4fa;
+  --kiosk-alert: #f15152;
+  --kiosk-glass: rgba(255, 255, 255, 0.06);
+  --kiosk-border: rgba(255, 255, 255, 0.12);
+  --kiosk-focus: rgba(1, 169, 234, 0.55);
 }
 
 @theme{
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --color-lightblue: #01a9ea;
   --color-darkblue: #012676;
   --color-novingray: #c0bda5;
@@ -19,6 +24,12 @@
   --color-novinpink: #f15152;
   --color-novinemutedgreen: #466365;
 
+  --color-kiosk-void: var(--kiosk-void);
+  --color-kiosk-panel: var(--kiosk-panel);
+  --color-kiosk-clinical: var(--kiosk-clinical);
+  --color-kiosk-navy: var(--kiosk-navy);
+  --color-kiosk-soft: var(--kiosk-soft);
+  --color-kiosk-alert: var(--kiosk-alert);
 }
 @theme inline {
   --font-ghasem: var(--font-ghasem);
@@ -31,6 +42,25 @@
   --font-mikhakbold: var(--font-mikhakbold);
 }
 
+body {
+  background: var(--kiosk-void);
+  color: #f5fbff;
+  font-family: var(--font-mikhakmedium), "Mikhak Medium", "A Ghasem", Tahoma, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iris-ring-outer,
+  .iris-ring-dashed,
+  .iris-ring-main,
+  .iris-arc,
+  .iris-scan,
+  .iris-fibers {
+    animation: none !important;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -38,10 +68,20 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: "Mikhak Medium" , "A Ghasem", Arial, sans-serif;
+.kiosk-panel {
+  border: 1px solid var(--kiosk-border);
+  background: var(--kiosk-glass);
+  backdrop-filter: blur(20px);
+  border-radius: 1.75rem;
+}
+
+.kiosk-title {
+  font-family: var(--font-ghasem), serif;
+  letter-spacing: -0.02em;
+}
+
+.kiosk-hint {
+  color: rgba(232, 244, 250, 0.62);
 }
 
 
