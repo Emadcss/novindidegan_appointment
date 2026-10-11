@@ -4,6 +4,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import {formatPersianDateFull, formatPersianTimeWithSeconds} from "@/lib/utils/persian-date";
 import {toPersianDigits} from "@/lib/utils/persian-digits";
+import {
+  getServerNow,
+  isServerTimeSynced,
+    syncServerTime,
+} from "@/lib/time/server-clock";
+import { SERVER_TIME_RESYNC_MS } from "@/lib/time/constants";
 
 type HeaderProps = {
   compact?: boolean;
@@ -11,17 +17,53 @@ type HeaderProps = {
 
 export default function Header({compact = false}: HeaderProps) {
   const [now, setNow] = useState<Date | null>(null);
+  const [timeReady, setTimeReady] = useState(false);
 
   useEffect(() => {
-    const updateTime = () => setNow(new Date());
-    updateTime();
-    const interval = setInterval(
-      updateTime,
-      1000
-    );
+    let cancelled = false;
 
-    return () => clearInterval(interval);
-  }, []);
+    async function boot() {
+      try {
+        await syncServerTime();
+        if (!cancelled) {
+          setNow(getServerNow());
+          setTimeReady(true);
+        }
+      } catch {
+        if (!cancelled) {
+          setTimeReady(false);
+          setNow(null);
+        }
+      }
+    }
+
+    boot();
+
+    const tick = window.setInterval(() => {
+      if (isServerTimeSynced()) {
+        setNow(getServerNow());
+      }
+    }, 1000);
+
+    const resync = window.setInterval(() => {
+      syncServerTime()
+          .then(() => {
+            if (!cancelled) {
+              setNow(getServerNow());
+              setTimeReady(true);
+            }
+          })
+      .catch(() => {
+        // sync بعدی دوباره تلاش می‌کند
+      });
+    }, SERVER_TIME_RESYNC_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(tick);
+      window.clearInterval(resync);
+    };
+    }, []);
 
   return (
     <header
@@ -91,40 +133,36 @@ export default function Header({compact = false}: HeaderProps) {
 
         {/* Date & Time */}
 
-        {now && (
-          <div
+        <div
             className={`
-              hidden
-              flex-row
-              items-end
-              rounded-2xl
-              border
-              border-novingray
-              bg-white/4
-              backdrop-blur-xl
-              sm:flex
-              ${compact ? "px-3 py-1" : "px-4 py-2"}
-            `}
-          >
-            <span className={`text-novinpink ${compact ? "text-[10px]" : "text-xs"}`}>
-              {formatPersianDateFull(now)}
-            </span>
+            hidden flex-col items-end rounded-2xl border border-novingray bg-white/4 backdrop-blur-xl sm:flex
+            ${compact ? "px-3 py-1" : "px-4 py-2"}
+          `}
+        >
+          {timeReady && now ? (
+              <>
+              <span
+                  className={`text-novinpink ${compact ? "text-[10px]" : "text-xs"}`}
+              >
+                {formatPersianDateFull(now)}
+              </span>
 
-            <span
-              dir="ltr"
-              className={`
-                font-mono
-                font-semibold
-                tracking-wider
-                text-white/90
-                tabular-nums
-                ${compact ? "mt-0 text-base" : "mt-0.5 text-lg"}
-              `}
-            >
-              {toPersianDigits(formatPersianTimeWithSeconds(now))}
+                <span
+                    dir="ltr"
+                    className={`
+                  font-mono font-semibold tracking-wider text-white/90 tabular-nums
+                  ${compact ? "mt-0 text-base" : "mt-0.5 text-lg"}
+                `}
+                >
+                {toPersianDigits(formatPersianTimeWithSeconds(now))}
+              </span>
+              </>
+          ) : (
+              <span className={`text-white/50 ${compact ? "text-[10px]" : "text-xs"}`}>
+              همگام‌سازی ساعت...
             </span>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* System Status */}
 

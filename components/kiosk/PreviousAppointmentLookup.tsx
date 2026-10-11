@@ -1,11 +1,12 @@
 "use client";
 
 import KioskNavigation from "@/components/ui/KioskNavigation";
+import type { PreviousAppointmentLookupResult } from "@/types/kiosk";
 
 type PreviousAppointmentLookupProps = {
     identifierLabel: "شماره موبایل" | "کد ملی"
     identifier: string;
-    onFound: (appointmentId: number) => void;
+    onFound: (result: PreviousAppointmentLookupResult) => void;
     onNotFound: () => void;
     onBack: () => void;
     onCancel: () => void;
@@ -21,8 +22,7 @@ export default function PreviousAppointmentLookup({
     onBack,
     onCancel,
     loading = false,
-    error = null,
-                                                  }: PreviousAppointmentLookupProps) {
+    error = null,}: PreviousAppointmentLookupProps) {
     /*
   * فعلاً این کامپوننت فقط UI و Flow را مدیریت می‌کند.
   *
@@ -30,7 +30,15 @@ export default function PreviousAppointmentLookup({
   */
 
     function handleDemoFound() {
-        onFound(1);
+        const result: PreviousAppointmentLookupResult = {
+            found: true,
+            appointmentId: 1,
+            specialtyId: 1,
+            doctorId: 1,
+            requiresSurgeryHistory: true,
+            hasSurgeryHistory: null,
+        };
+        onFound(result);
     }
 
     return (

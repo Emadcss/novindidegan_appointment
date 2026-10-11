@@ -81,7 +81,10 @@ export type Appointment = {
     patientId: number;
     specialtyId: number;
     doctorId: number;
+    /** تاریخ روز کاری — Asia/Tehran — توسط سرور */
     appointmentDate: string;
+    /** ساعت ثبت/نوبت — Asia/Tehran — توسط سرور */
+    appointmentTime: string;
     appointmentNumber: number;
     nationality: Nationality;
     nationalId: string | null;
@@ -89,6 +92,15 @@ export type Appointment = {
     hasSurgeryHistory: boolean | null;
     status: AppointmentStatus;
     createdAt: string;
+};
+
+export type CreateAppointmentInput = {
+    specialtyId: number;
+    doctorId: number;
+    nationality: Nationality;
+    nationalId: string | null;
+    mobile: string | null;
+    hasSurgeryHistory?: boolean | null;
 };
 
 export type DailyAppointmentCounter = {

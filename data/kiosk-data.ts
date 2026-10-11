@@ -7,7 +7,7 @@ import  type {
     ScheduleException,
     Specialty,
 } from "@/types/kiosk";
-import {fail} from "node:assert";
+
 
 export const specialties: Specialty[] = [
     {

@@ -3,28 +3,70 @@ import {
     doctorSchedules,
     scheduleExceptions,
 } from "@/data/kiosk-data";
+import { getServerNow } from "@/lib/time/server-clock";
+import { APP_TIMEZONE } from "@/lib/time/constants";
 
 import type {
     DoctorSchedule,
     ScheduleException,
 } from "@/types/kiosk";
-import {compile} from "tailwindcss";
 
 type TimeRange = {
     startTime: string;
     endTime: string;
 };
 
-function formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+// مثال ساده — بعداً می‌توانی دقیق‌تر کنی
+function getTehranNow(): Date {
+    // یا از DB: SELECT NOW() AT TIME ZONE 'Asia/Tehran'
+    return getServerNow();
+}
 
-    return `${year}-${month}-${day}`;
+function getTehranDateParts(date: Date) {
+    const parts = new Intl.DateTimeFormat("en-Us",{
+        timeZone: APP_TIMEZONE,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23",
+    }).formatToParts(date);
+
+    return Object.fromEntries(
+        parts
+            .filter((part) => part.type !== "literal")
+            .map((part) => [part.type, part.value])
+    ) as Record<string, string>;
+}
+
+function formatDate(date: Date): string {
+    const parts = getTehranDateParts(date);
+
+    return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 function getWeekday(date: Date): number {
-    return date.getDay();
+    const weekday = getTehranDateParts(date).weekday;
+    const weekdays: Record<string, number> = {
+        Sat: 0,
+        Sun: 1,
+        Mon: 2,
+        Tue: 3,
+        Wed: 4,
+        Thu: 5,
+        Fri: 6,
+    };
+
+    return weekdays[weekday];
+}
+
+function getTehranTime(date: Date): string {
+    const parts = getTehranDateParts(date);
+
+    return `${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
 function timeToMinutes(time: string): number {
@@ -33,13 +75,21 @@ function timeToMinutes(time: string): number {
     return hours * 60 + minute;
 }
 
+function timeToSeconds(time: string): number {
+    const [hours, minutes, seconds = 0] = time
+        .split(":")
+        .map(Number);
+
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
 function isTimeInRange(
     currentTime: string,
     range: TimeRange,
 ): boolean {
-    const current = timeToMinutes(currentTime);
-    const start = timeToMinutes(range.startTime);
-    const end = timeToMinutes(range.endTime);
+    const current = timeToSeconds(currentTime);
+    const start = timeToSeconds(range.startTime);
+    const end = timeToSeconds(range.endTime);
 
     return current >= start && current < end;
 }
@@ -62,7 +112,9 @@ export function getRegularSchedules(
         if (
             schedule.validUntil &&
             dateString > schedule.validUntil
-        ) return false;
+        ) {
+            return false;
+        }
 
         return true;
     });
@@ -100,7 +152,7 @@ export function getScheduleException(
  */
 export function getEffectiveSchedules(
     doctorId: number,
-    date: Date = new Date()
+    date: Date = getTehranNow()
 ): TimeRange[] {
     const doctor = doctors.find(
         (doctor) => doctor.id === doctorId
@@ -154,7 +206,7 @@ export function getEffectiveSchedules(
  */
 export function isDoctorScheduledToday(
     doctorId: number,
-    date: Date = new Date()
+    date: Date = getTehranNow()
 ): boolean {
     return (
         getEffectiveSchedules(doctorId, date).length > 0
@@ -166,7 +218,7 @@ export function isDoctorScheduledToday(
  */
 export function isDoctorAvailableNow(
     doctorId: number,
-    date: Date = new Date()
+    date: Date = getTehranNow()
 ): boolean {
     const schedules = getEffectiveSchedules(
         doctorId,
@@ -177,20 +229,16 @@ export function isDoctorAvailableNow(
         return false;
     }
 
-    const currentTime = `${String(
-        date.getHours()
-    ).padStart(2, "0")}:${String(
-        date.getMinutes()
-    ).padStart(2, "0")}`;
+    const currentTime = getTehranTime(date);
 
     return schedules.some((schedule) =>
         isTimeInRange(currentTime, schedule)
     );
 }
 
-export function ggetDoctorAvailability(
+export function getDoctorAvailability(
     doctorId: number,
-    date: Date = new Date()
+    date: Date = getTehranNow()
 ) {
     const schedules = getEffectiveSchedules(
         doctorId,
@@ -200,11 +248,7 @@ export function ggetDoctorAvailability(
     return {
         scheduled: schedules.length > 0,
         availableNow: schedules.some((schedule) => {
-            const currentTime = `${String(
-                date.getHours()
-            ).padStart(2, "0")}:${String(
-                date.getMinutes()
-            ).padStart(2, "0")}`;
+            const currentTime = getTehranTime(date);
 
             return isTimeInRange(
                 currentTime,

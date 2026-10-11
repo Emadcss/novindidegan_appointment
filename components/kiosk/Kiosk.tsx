@@ -5,13 +5,16 @@ import { useCallback, useEffect, useState } from "react";
 
 import IrisMedicalBackground from "@/components/ui/IrisMedicalBackground";
 import Header from "@/components/ui/Header";
+import KioskNavigation from "@/components/ui/KioskNavigation";
+import KioskProgress, {
+  type ProgressItem,
+} from "@/components/ui/KioskProgress";
 import SpecialtySelection from "@/components/kiosk/SpecialtySelection";
 import DoctorSelection from "@/components/kiosk/DoctorSelection";
 import NationalitySelection from "@/components/kiosk/NationalitySelection";
-import KioskNavigation from "@/components/ui/KioskNavigation";
 import NationalIdForm from "@/components/kiosk/NationalIdForm";
-import SurgeryHistory from "@/components/kiosk/SurgeryHistory";
 import MobileForm from "@/components/kiosk/MobileForm";
+import SurgeryHistory from "@/components/kiosk/SurgeryHistory";
 import PreviousAppointmentLookup from "@/components/kiosk/PreviousAppointmentLookup";
 import PreviousAppointmentNotFound from "@/components/kiosk/PreviousAppointmentNotFound";
 
@@ -22,6 +25,8 @@ import type {
   Nationality,
   Specialty,
 } from "@/types/kiosk";
+import {getDoctorById, getSpecialtyById} from "@/lib/kiosk/kiosk-service";
+
 
 
 const INACTIVITY_TIMEOUT = 90_000
@@ -55,7 +60,7 @@ export default function Kiosk() {
     useState<number | null>(null);
 
   // --------------------------------------------------
-  // Reset
+  // Reset session
   // --------------------------------------------------
 
   const resetKiosk = useCallback(() => {
@@ -74,34 +79,33 @@ export default function Kiosk() {
   // Inactivity timeout
   // --------------------------------------------------
 
-  const isSessionActive = step !== "welcome";
-
   useEffect(() => {
-    if (!isSessionActive) return;
+    if (step === "welcome") return;
 
-    let timer = window.setTimeout(() => {
-      resetKiosk();
-    }, INACTIVITY_TIMEOUT);
+    let timer: number;
 
-    const handleActivity = () => {
+    const resetTimer = () => {
       window.clearTimeout(timer);
+
       timer = window.setTimeout(() => {
         resetKiosk();
       }, INACTIVITY_TIMEOUT);
     };
 
-    window.addEventListener("pointerdown", handleActivity);
-    window.addEventListener("touchstart", handleActivity);
-    window.addEventListener("keydown", handleActivity);
+    resetTimer();
+
+    window.addEventListener("pointerdown", resetTimer);
+    window.addEventListener("touchstart", resetTimer);
+    window.addEventListener("keydown", resetTimer);
 
     return () => {
       window.clearTimeout(timer);
-      window.removeEventListener("pointerdown", handleActivity);
-      window.removeEventListener("touchstart", handleActivity);
-      window.removeEventListener("keydown", handleActivity);
-    };
-  }, [isSessionActive, resetKiosk]);
 
+      window.removeEventListener("pointerdown", resetTimer);
+      window.removeEventListener("touchstart", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+    };
+  }, [step, resetKiosk]);
 
   // --------------------------------------------------
   // Welcome
@@ -116,24 +120,14 @@ export default function Kiosk() {
   // --------------------------------------------------
 
   function getProgressItems(
-      step: KioskStep,
-      flow: KioskFlow | null,
+      currentFlow: KioskFlow | null,
       requiresSurgeryHistory: boolean
-  ) {
-    if (flow === "new") {
-      const items = [
-        {
-          id: "specialty",
-          label: "تخصص",
-        },
-        {
-          id: "doctor",
-          label: "پزشک",
-        },
-        {
-          id: "identity",
-          label: "مشخصات",
-        },
+  ): ProgressItem[] {
+    if (currentFlow === "new") {
+      const items: ProgressItem[] = [
+        { id: "specialty", label: "تخصص" },
+        { id: "doctor", label: "پزشک" },
+        { id: "identity", label: "مشخصات" },
       ];
 
       if (requiresSurgeryHistory) {
@@ -145,56 +139,108 @@ export default function Kiosk() {
 
       items.push({
         id: "ticket",
-        label: "دریافت نوبت",
+        label: "چاپ قبض",
       });
 
       return items;
     }
 
-    return [
-      {
-        id: "identity",
-        label: "مشخصات",
-      },
-      {
-        id: "appointment",
-        label: "بررسی نوبت",
-      },
-      {
+    if (currentFlow === "previous") {
+      const items: ProgressItem[] = [
+        { id: "identity", label: "مشخصات" },
+        { id: "lookup", label: "بررسی نوبت" },
+      ];
+
+      if (requiresSurgeryHistory) {
+        items.push({
+          id: "surgery",
+          label: "سابقه جراحی",
+        });
+      }
+
+      items.push({
         id: "ticket",
-        label: "دریافت نوبت",
-      },
-    ];
+        label: "چاپ قبض",
+      });
+
+      return items;
+    }
+
+    return [];
   }
 
   function getProgressIndex(
-      step: KioskStep,
+     currentStep: KioskStep,
+      currentFlow: KioskFlow | null,
       requiresSurgeryHistory: boolean
   ): number {
-    switch (step) {
-      case "new-specialty":
+    if (currentFlow === "new") {
+      switch (currentStep) {
+        case "new-specialty":
           return 0;
 
-      case "new-doctor":
-        return 1;
+        case "new-doctor":
+          return 1;
 
-      case "new-nationality":
-      case "national-id":
-      case "mobile":
-        return 2;
+        case "new-nationality":
+        case "national-id":
+        case "mobile":
+          return 2;
 
-      case "surgery-history":
-        return 3;
+        case "surgery-history":
+          return 3;
 
-      case "printing":
-        return requiresSurgeryHistory
-            ? 4
-            : 3;
+        case "printing":
+          return requiresSurgeryHistory ? 4 : 3;
 
-      default:
-        return 0;
+        default:
+          return 0;
+      }
     }
+
+    if (flow === "previous") {
+      switch (currentStep) {
+        case "previous-nationality":
+        case "national-id":
+        case "mobile":
+          return 0;
+
+        case "previous-lookup":
+          return 1;
+
+        case "surgery-history":
+          return 2;
+
+        case "printing":
+          return requiresSurgeryHistory ? 3 : 2;
+
+        default:
+          return 0;
+      }
+    }
+
+    return 0;
   }
+
+  const requireSurgeryHistory =
+      doctor?.requiresSurgeryHistory ?? false;
+
+  const progressItems = getProgressItems(
+      flow,
+      requireSurgeryHistory
+  );
+
+  const progressIndex = getProgressIndex(
+      step,
+      flow,
+      requireSurgeryHistory
+  );
+
+  const shouldShowProgress =
+      step !== "welcome" &&
+      step !== "main-choice" &&
+      step !== "previous-not-found" &&
+      progressItems.length > 0;
 
   // --------------------------------------------------
   // Main choice
@@ -202,7 +248,6 @@ export default function Kiosk() {
 
   function handleNewAppointment() {
     setFlow("new");
-
     setSpecialty(null);
     setDoctor(null);
     setNationality(null);
@@ -218,7 +263,6 @@ export default function Kiosk() {
 
   function handlePreviousAppointment() {
     setFlow("previous");
-
     setSpecialty(null);
     setDoctor(null);
     setNationality(null);
@@ -255,6 +299,10 @@ export default function Kiosk() {
     setDoctor(selectedDoctor);
     setNationality(null);
 
+    setNationalId("");
+    setMobile("");
+    setHasSurgeryHistory(null);
+
     setStep("new-nationality");
   }
 
@@ -277,6 +325,34 @@ export default function Kiosk() {
 
     setNationalId("");
     setStep("mobile");
+  }
+
+  // --------------------------------------------------
+  // Identity form completed
+  // --------------------------------------------------
+
+  function handleIdentitySubmit(value: string) {
+    if (nationality === "iranian") {
+      setNationalId(value);
+      setMobile("");
+    } else {
+      setMobile(value);
+      setNationalId("");
+    }
+
+    if (flow === "previous") {
+      setStep("previous-lookup");
+      return;
+    }
+
+    if (doctor?.requiresSurgeryHistory) {
+      setStep("surgery-history");
+      return;
+    }
+
+    // موقت: تا اتصال API، فقط صفحه چاپ نمایش داده می‌شود.
+    // بعداً اینجا باید createAppointment اجرا شود.
+    setStep("printing")
   }
 
   // --------------------------------------------------
@@ -314,14 +390,6 @@ export default function Kiosk() {
 
         return;
 
-      case "surgery-history":
-        if (nationality === "iranian") {
-          setStep("national-id");
-        } else {
-          setStep("mobile");
-        }
-
-        return;
 
       case "previous-lookup":
           if (nationality === "iranian") {
@@ -337,6 +405,23 @@ export default function Kiosk() {
         } else {
           setStep("mobile");
         }
+        return;
+
+      case "surgery-history":
+        // در مسیر نوبت قبلی، به جای فرم مشخصات،
+        // به نتیجه جست‌وجوی همان نوبت برمی‌گردیم.
+
+        if (flow === "previous" && appointmentId !== null) {
+          setStep("previous-lookup");
+          return;
+        }
+
+        if (nationality === "iranian") {
+          setStep("national-id");
+        } else {
+          setStep("mobile");
+        }
+
         return;
 
       default:
@@ -555,21 +640,7 @@ export default function Kiosk() {
         return (
           <NationalIdForm
             value={nationalId}
-            onSubmit={(value) => {
-              setNationalId(value);
-              setMobile("");
-
-              if (flow === "previous") {
-                setStep("previous-lookup");
-                return;
-              }
-
-              if (doctor?.requiresSurgeryHistory) {
-                setStep("surgery-history");
-              } else {
-                // createAppointment()
-              }
-            }}
+            onSubmit={handleIdentitySubmit}
             onBack={handleBack}
             onCancel={handleCancel}
           />
@@ -583,23 +654,14 @@ export default function Kiosk() {
         return (
           <MobileForm
               value={mobile}
-              onSubmit={(value) => {
-                setMobile(value);
-                setNationalId("");
-
-                if (flow === "previous") {
-                  setStep("previous-lookup");
-                  return
-                }
-                setStep("surgery-history");
-              }}
+              onSubmit={handleIdentitySubmit}
               onBack={handleBack}
               onCancel={handleCancel}
           />
         );
 
         // ----------------------------------------------
-        // previous-lookup
+        // previous appointment lookup
         // ----------------------------------------------
 
       case "previous-lookup":
@@ -615,11 +677,35 @@ export default function Kiosk() {
                     ? nationalId
                     : mobile
                 }
-                onFound={(id) => {
-                  setAppointmentId(id);
-                  setHasSurgeryHistory(null);
+                onFound={(result) => {
+                 if (!result.found || result.appointmentId === null) {
+                    setStep("previous-not-found");
+                 return
+                 }
+
+                 setAppointmentId(result.appointmentId);
+
+                 setSpecialty(
+                     result.specialtyId !== null
+                      ? getSpecialtyById(result.specialtyId) ?? null
+                      : null
+                 );
+
+                 setDoctor(
+                     result.doctorId !== null
+                        ? getDoctorById(result.doctorId) ?? null
+                         : null
+                 );
+
+                 setHasSurgeryHistory(result.hasSurgeryHistory);
+
+                 if (result.requiresSurgeryHistory) {
                   setStep("surgery-history");
-                }}
+                 } else {
+                   setStep("printing");
+                 }
+                }
+            }
                 onNotFound={() => {
                   setStep("previous-not-found");
                 }}
@@ -628,22 +714,16 @@ export default function Kiosk() {
             />
         );
 
+        // ----------------------------------------------
+        // Previous appointment not found
+        // ----------------------------------------------
+
       case "previous-not-found":
         return (
             <PreviousAppointmentNotFound
                 onBack={handleBack}
                 onCancel={handleCancel}
-                onNewAppointment={() => {
-                  setFlow("new");
-                  setSpecialty(null);
-                  setDoctor(null);
-                  setNationality(null);
-                  setNationalId("");
-                  setMobile("");
-                  setHasSurgeryHistory(null);
-                  setAppointmentId(null);
-                  setStep("new-specialty");
-                }}
+                onNewAppointment={handleNewAppointment}
             />
         );
 
@@ -653,14 +733,17 @@ export default function Kiosk() {
 
       case "surgery-history":
         return (
-          <SurgeryHistory
-            onSelect={(hasSurgeryHistory) => {
-              setHasSurgeryHistory(hasSurgeryHistory);
-              setStep("printing");
-            }}
-            onBack={handleBack}
-            onCancel={handleCancel}
-          />
+            <SurgeryHistory
+                onSelect={(value) => {
+                  setHasSurgeryHistory(value);
+
+                  // موقت: بعداً باید ثبت نوبت یا ادامه فرایند
+                  // چاپ قبض واقعی انجام شود.
+                  setStep("printing");
+                }}
+                onBack={handleBack}
+                onCancel={handleCancel}
+            />
         );
 
       // ----------------------------------------------
@@ -669,9 +752,11 @@ export default function Kiosk() {
 
       case "printing":
         return (
-          <Placeholder
-            title="در حال چاپ قبض نوبت..."
-          />
+            <Placeholder
+                title="مرحله چاپ قبض هنوز به چاپگر متصل نشده است"
+                description="پس از اتصال سرویس ثبت نوبت و چاپگر، قبض نوبت در این مرحله چاپ خواهد شد."
+                onRestart={resetKiosk}
+            />
         );
 
       default:
@@ -691,7 +776,18 @@ export default function Kiosk() {
         <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
           <Header compact={step !== "welcome"} />
 
-          <div className="flex flex-1 flex-col items-center justify-center py-3">
+          <div className="flex flex-1 flex-col justify-center py-3">
+            {shouldShowProgress && (
+                <div className="mx-auto mb-8 w-full max-w-5xl">
+                  <KioskProgress
+                      items={progressItems}
+                      activeIndex={Math.min(
+                          progressIndex,
+                          progressItems.length - 1
+                      )}
+                      />
+                </div>
+            )}
             <div className="w-full">
               {renderStep()}
             </div>
@@ -708,30 +804,38 @@ export default function Kiosk() {
 
 type PlaceholderProps = {
   title: string;
-  onBack?: () => void;
-  onCancel?: () => void;
+  description: string;
+  onRestart: () => void;
 };
 
 function Placeholder({
-  title,
-  onBack,
-  onCancel,
-}: PlaceholderProps) {
+                       title,
+                       description,
+                       onRestart,
+                     }: PlaceholderProps) {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col">
-      <div className="flex min-h-72 items-center justify-center rounded-[2rem] border border-white/20 bg-white/10 p-10 text-center shadow-xl backdrop-blur-xl">
-        <h1 className="text-3xl font-bold md:text-4xl">
-          {title}
-        </h1>
-      </div>
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center">
+        <div className="flex min-h-72 w-full flex-col items-center justify-center rounded-[2rem] border border-white/20 bg-white/10 p-10 text-center shadow-xl backdrop-blur-xl">
+          <h1 className="text-2xl font-bold md:text-4xl">
+            {title}
+          </h1>
 
-      {onBack && onCancel && (
-        <KioskNavigation
-          onBack={onBack}
-          onCancel={onCancel}
-        />
-      )}
-    </div>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-white/70 md:text-lg">
+            {description}
+          </p>
+        </div>
+
+        <button
+            type="button"
+            onClick={onRestart}
+            className="
+          mt-6 min-h-16 rounded-2xl border border-white/20
+          bg-white/10 px-10 py-4 text-lg font-semibold
+          transition hover:bg-white/15 active:scale-[0.98]
+        "
+        >
+          بازگشت به صفحه شروع
+        </button>
+      </div>
   );
 }
-

@@ -1,6 +1,6 @@
 "use client";
 
-type ProgressItem = {
+export type ProgressItem = {
     id: string;
     label: string;
 };
@@ -10,95 +10,90 @@ type KioskProgressProps = {
     activeIndex: number;
 };
 
-export default function KioskProgress({
-    items,
-    activeIndex,
-                                      }: KioskProgressProps) {
-    if (items.length <= 1) {
-        return null;
-    }
+export default function  KioskProgress({
+                                           items,
+                                           activeIndex,
+                                       }: KioskProgressProps) {
+    if (items.length <= 1) return null;
 
     return (
-        <div
+        <nav
+            aria-label="مراحل دریافت نوبت"
             dir="rtl"
-            className="mb-8 w-full"
+            className="mx-auto mb-8 w-full max-w-4xl px-2"
         >
-            <div className="flex items-center justify-center">
+            <ol className="flex w-full items-start">
                 {items.map((item, index) => {
-                    const isCompleted =
-                        index < activeIndex;
-
-                    const isActive =
-                        index === activeIndex;
+                    const completed = index < activeIndex;
+                    const active = index === activeIndex;
 
                     return (
-                        <div
+                        <li
                             key={item.id}
-                            className="flex items-center"
+                            aria-current={active ? "step" : undefined}
+                            className="relative flex min-w-0 flex-1 flex-col items-center"
                         >
-                            <div className="flex flex-col items-center">
-                                <div
-                                    className={`
-                                        flex h-10 w-10
-                                        items-center justify-center
-                                        rounded-full
-                                        border
-                                        text-sm font-bold
-                                        transition-all
-                                        ${
-                                            isActive
-                                                ? "border-t-lightblue bg-lightblue text-white"
-                                                : isCompleted
-                                                    ? "border-white/40 bg-white/20 text-white"
-                                                    : "border-white/15 bg-white/5 text-white/40"
-                                    }
-                                  `}
-                                >
-                                    {isCompleted
-                                        ? "✓"
-                                        : index + 1}
-                                </div>
-
+                            {/* اتصال مراحل */}
+                            {index > 0 && (
                                 <span
-                                    className={`
-                                        mt-2
-                                        whitespace-nowrap
-                                        text-xs
-                                        md:text-sm
-                                        ${
-                                            isActive
-                                                ? "font-bold text-white"
-                                                : isCompleted
-                                                    ? "text-white/70"
-                                                    : "text-white/40"
-                                    }
-                                  `}
-                                >
-                                  {item.label}
-                                </span>
-                            </div>
-
-                            {index < items.length - 1 && (
-                                <div
-                                    className={`
-                                        mx-2
-                                        mb-6
-                                        h-px
-                                        w-8
-                                        md:w-16
-                                        ${
-                                            index <
-                                            activeIndex
-                                                ? "bg-white/50"
-                                                : "bg-white/15"
-                                    }
-                                  `}
+                                    aria-hidden="true"
+                                    className={`absolute right-1/2 top-5 h-0.5 w-full ${
+                                        completed
+                                            ? `bg-emerald-400/80`
+                                            : "bg-white/20"
+                                    }`}
                                 />
                             )}
-                        </div>
+
+                            {/* شماره یا تیک مرحله */}
+                            <span
+                                className={[
+                                    "relative z10 flex h-10 w-10 shrink-0",
+                                    "items-center justify-center rounded-full border-2",
+                                    "text-sm font-bold translation-colors duration-200",
+                                    completed
+                                        ? "border-emerald-400 bg-emerald-500 text-white"
+                                        : active
+                                            ? "border-t-lightblue bg-lightblue text-white shadow-lg shadow-lightblue/25"
+                                            : "border-white/25 bg-slate-900/30 text-white/45",
+                                ].join(" ")}
+                            >
+                                {completed ? (
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="m5 12 4 4L19 6" />
+                                    </svg>
+                                ) : (
+                                    index + 1
+                                )}
+                            </span>
+
+                            {/* عنوان مرحله */}
+                            <span
+                                className={[
+                                    "mt-2 max-w-full px-1 text-center",
+                                    "text-[11px] leading-5 sm:text-sm",
+                                    active
+                                        ? "font-bold text-white"
+                                        : completed
+                                            ? "text-emerald-200"
+                                            : "text-white/45"
+                                ].join(" ")}
+                            >
+                                {item.label}
+                            </span>
+                        </li>
                     );
                 })}
-            </div>
-        </div>
+            </ol>
+        </nav>
     );
 }

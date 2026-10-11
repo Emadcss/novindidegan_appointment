@@ -5,10 +5,10 @@ type CreatePatientInput = {
     nationality: Nationality;
     nationalId: string | null;
     mobile: string | null;
-}
+};
 
 export function findPatientByNationalId(
-    nationalId: string,
+    nationalId: string
 ): Patient | null {
     return (
         patients.find(
