@@ -1,0 +1,26 @@
+﻿diff --git a/lib/db/connection.ts b/lib/db/connection.ts
+index 8115600..8af17e3 100644
+--- a/lib/db/connection.ts
++++ b/lib/db/connection.ts
+@@ -3,7 +3,11 @@ import { Pool, types } from "pg";
+ import type { PoolClient } from "pg";
+ 
+ import { runMigrations } from "@/lib/db/migrations";
+-import { seedIfEmpty } from "@/lib/db/seed";
++import {
++    ensureAdminUser,
++    ensureDemoKiosks,
++    seedIfEmpty,
++} from "@/lib/db/seed";
+ 
+ export type Row = Record<string, unknown>;
+ export type SqlParam = string | number | boolean | null;
+@@ -71,6 +75,8 @@ async function bootstrap(): Promise<void> {
+         const exec = execOn(client);
+         await runMigrations(exec);
+         await seedIfEmpty(exec);
++        await ensureAdminUser(exec);
++        await ensureDemoKiosks(exec);
+ 
+         await client.query("COMMIT");
+     } catch (error) {

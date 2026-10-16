@@ -4,7 +4,7 @@ import {
     listDoctors,
     listSpecialties,
 } from "@/lib/db/repositories";
-import { isDoctorAvailableNow } from "@/lib/kiosk/schedule-service";
+import { isDoctorScheduledToday } from "@/lib/kiosk/schedule-service";
 import { getServerNow } from "@/lib/time/server-clock";
 
 import type {
@@ -21,9 +21,12 @@ export async function getActiveSpecialties(): Promise<Specialty[]> {
 }
 
 /** پزشکانی از فهرست که همین لحظه در ساعت حضور خود هستند */
-async function filterAvailable(doctors: Doctor[], date: Date): Promise<Doctor[]> {
+async function filterScheduledToday(
+    doctors: Doctor[],
+    date: Date,
+): Promise<Doctor[]> {
     const flags = await Promise.all(
-        doctors.map((doctor) => isDoctorAvailableNow(doctor.id, date)),
+        doctors.map((doctor) => isDoctorScheduledToday(doctor.id, date)),
     );
 
     return doctors.filter((_, index) => flags[index]);
@@ -40,7 +43,7 @@ export async function getAvailableDoctorsForSpecialty(
         (doctor) => doctor.specialtyId === specialtyId && doctor.isActive,
     );
 
-    return filterAvailable(candidates, date);
+    return filterScheduledToday(candidates, date);
 }
 
 /**
@@ -50,7 +53,7 @@ export async function getAvailableSpecialtiesForDate(
     date: Date = getServerNow(),
 ): Promise<SpecialtyWithAvailability[]> {
     const activeDoctors = (await listDoctors()).filter((doctor) => doctor.isActive);
-    const availableDoctors = await filterAvailable(activeDoctors, date);
+    const availableDoctors = await filterScheduledToday(activeDoctors, date);
     const specialties = await getActiveSpecialties();
 
     return specialties
