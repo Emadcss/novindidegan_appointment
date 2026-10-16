@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import Spinner from "@/components/ui/Spinner";
+import Spinner from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/components/ui/Spinner";
 
 export type ButtonVariant = "primary" | "secondary" | "quiet";
 export type ButtonSize = "md" | "lg";

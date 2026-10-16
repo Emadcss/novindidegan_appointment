@@ -1,37 +1,30 @@
-"use client"
+"use client";
 
-import {useEffect, useState} from "react";
-import type {
-    Doctor,
-    Specialty,
-} from "@/types/kiosk";
+import { useEffect, useState } from "react";
+import type { Doctor, Specialty } from "@/types/kiosk";
 import { fetchDoctors } from "@/app/api/kiosk/kiosk-api";
-import KioskNavigation from "@/components/ui/KioskNavigation";
+import Button from "@/components/ui/Button";
+import ChoiceCard from "@/components/ui/ChoiceCard";
+import Screen from "@/components/ui/Screen";
+import StatusPanel from "@/components/ui/StatusPanel";
 
 type DoctorSelectionProps = {
     specialty: Specialty;
-
     onSelect: (doctor: Doctor) => void;
-
     onBack: () => void;
-
     onCancel: () => void;
 };
 
 export default function DoctorSelection({
-    specialty,
-    onSelect,
-    onBack,
-    onCancel,
+                                            specialty,
+                                            onSelect,
+                                            onBack,
+                                            onCancel,
                                         }: DoctorSelectionProps) {
-    const [doctors, setDoctors] =
-        useState<Doctor[]>([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [error, setError] =
-        useState<string | null>(null);
+    const [doctors, setDoctors] = useState<Doctor[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [failed, setFailed] = useState(false);
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
         let canceled = false;
@@ -39,23 +32,16 @@ export default function DoctorSelection({
         async function loadDoctors() {
             try {
                 setLoading(true);
-                setError(null);
+                setFailed(false);
 
-                const data =
-                    await fetchDoctors(
-                        specialty.id
-                    );
+                const data = await fetchDoctors(specialty.id);
 
                 if (!canceled) {
                     setDoctors(data);
                 }
-            } catch (error) {
+            } catch {
                 if (!canceled) {
-                    setError(
-                        error instanceof Error
-                        ? error.message
-                            : "خطا در دریافت پزشکان"
-                    );
+                    setFailed(true);
                 }
             } finally {
                 if (!canceled) {
@@ -69,83 +55,53 @@ export default function DoctorSelection({
         return () => {
             canceled = true;
         };
-    }, [specialty.id]);
+    }, [specialty.id, attempt]);
 
     return (
-        <div className='flex min-h-full flex-col'>
-            <div className='mb-8 text-center'>
-                <p className='mb-2 text-lg opacity-60'>
-                    تخصص انتخاب شده
-                </p>
+        <Screen
+            context={`تخصص: ${specialty.name}`}
+            title="پزشک را انتخاب کنید"
+            hint="پزشکانی که الان حضور دارند نمایش داده می‌شوند"
+            onBack={onBack}
+            onCancel={onCancel}
+        >
+            {loading && <StatusPanel tone="loading" title="در حال دریافت پزشکان…" />}
 
-                <h1 className='text-3xl font-bold'>
-                    {specialty.name}
-                </h1>
-
-                <p className='mt-3 text-lg opacity-70'>
-                    پزشک مورد نظر خود را انتخاب کنید
-                </p>
-            </div>
-
-            {loading && (
-                <div className='flex flex-1 items-center justify-center'>
-                    <p className='text-xl'>
-                        در حال دریافت پزشکان
-                    </p>
-                </div>
+            {!loading && failed && (
+                <StatusPanel
+                    tone="error"
+                    title="فهرست پزشکان بارگذاری نشد"
+                    description="ارتباط با سرور برقرار نشد. دوباره تلاش کنید یا به پذیرش مراجعه کنید."
+                >
+                    <Button onClick={() => setAttempt((value) => value + 1)}>تلاش دوباره</Button>
+                </StatusPanel>
             )}
 
-            {!loading && error && (
-                <div className='flex flex-1 flex-col items-center justify-center gap-6'>
-                    <p className='text-xl'>
-                        {error}
-                    </p>
-
-                    <button
-                        type='button'
-                        onClick={() => window.location.reload()}
-                        className='min-h-16 rounded-2xl bg-darkblue px-10 text-lg font-bold text-white'
-                        >
-                        تلاش مجدد
-                    </button>
-                </div>
+            {!loading && !failed && doctors.length === 0 && (
+                <StatusPanel
+                    tone="empty"
+                    title="برای این تخصص، الان پزشکی حاضر نیست"
+                    description="تخصص دیگری انتخاب کنید یا برای راهنمایی به پذیرش مراجعه کنید."
+                >
+                    <Button variant="secondary" onClick={onBack}>
+                        انتخاب تخصص دیگر
+                    </Button>
+                </StatusPanel>
             )}
 
-            {!loading &&
-                !error &&
-                doctors.length > 0 && (
-                    <div className='grid flex-1 grid-cols-2 gap-6 lg:grid-cols-3'>
-                        {doctors.map((doctor) => (
-                            <button
+            {!loading && !failed && doctors.length > 0 && (
+                <div className="grid grid-cols-2 gap-5 lg:grid-cols-3">
+                    {doctors.map((doctor) => (
+                        <ChoiceCard
                             key={doctor.id}
-                            type='button'
-                            onClick={() =>
-                                onSelect(doctor)
-                            }
-                            className='flex min-h-48 flex-col items-center justify-center rounded-3xl border border-white/30 bg-white/15 p-8 text-center shadow-lg backdrop-blur-md transition-transform active:scale-[0.97]'
-                            >
-                                <span className='text-2xl font-bold'>
-                                    {doctor.displayName}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-            {!loading &&
-                !error &&
-                doctors.length === 0 && (
-                    <div className='flex flex-1 items-center justify-center'>
-                        <p className='text-xl'>
-                            برای این تخصص، پزشکی برای امروز در دسترس نیست
-                        </p>
-                    </div>
-                )}
-
-            <KioskNavigation
-                onBack={onBack}
-                onCancel={onCancel}
-                />
-        </div>
+                            size="compact"
+                            icon={<span className="text-title font-bold">{doctor.lastName.charAt(0)}</span>}
+                            title={doctor.displayName}
+                            onClick={() => onSelect(doctor)}
+                        />
+                    ))}
+                </div>
+            )}
+        </Screen>
     );
 }

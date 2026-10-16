@@ -2,6 +2,7 @@ import { NextRequest, NextResponse} from "next/server";
 import  {
     getAvailableDoctorsForSpecialty
 } from "@/lib/kiosk/kiosk-service";
+import { getServerNow } from "@/lib/time/server-clock";
 
 export async function GET(
     request: NextRequest
@@ -39,9 +40,9 @@ export async function GET(
         }
 
         const doctors =
-            getAvailableDoctorsForSpecialty(
+            await getAvailableDoctorsForSpecialty(
                 parsedSpecialtyId,
-                new Date()
+                getServerNow()
             );
 
         return NextResponse.json({
@@ -56,10 +57,10 @@ export async function GET(
 
         return NextResponse.json(
             {
-            success: false,
-            message: "خطا در دریافت پزشکان",
+                success: false,
+                message: "خطا در دریافت پزشکان",
             },
             { status: 500 }
-            );
+        );
     }
 }

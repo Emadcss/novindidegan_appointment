@@ -1,8 +1,8 @@
 import { KioskError } from "@/lib/kiosk/errors";
-import { normalizeDigits } from "@/lib/utils/persian-digits";
-import { isValidIranianMobile } from "@/lib/validators/mobile";
-import { isValidIranianNationalId } from "@/lib/validators/national-id";
-import type { Nationality } from "@/types/kiosk";
+import { normalizeDigits } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/utils/persian-digits";
+import { isValidIranianMobile } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/validators/mobile";
+import { isValidIranianNationalId } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/validators/national-id";
+import type { Nationality } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/types/kiosk";
 
 export type Identity = {
     nationality: Nationality;

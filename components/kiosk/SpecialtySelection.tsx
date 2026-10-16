@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type {Specialty} from "@/types/kiosk";
-import {fetchSpecialties} from "@/app/api/kiosk/kiosk-api";
-import KioskNavigation from "@/components/ui/KioskNavigation";
+import type { Specialty, SpecialtyWithAvailability } from "@/types/kiosk";
+import { fetchSpecialties } from "@/app/api/kiosk/kiosk-api";
+import Button from "@/components/ui/Button";
+import ChoiceCard from "@/components/ui/ChoiceCard";
+import { SpecialtyIcon } from "@/components/ui/Icons";
+import Screen from "@/components/ui/Screen";
+import StatusPanel from "@/components/ui/StatusPanel";
+import { toPersianDigits } from "@/lib/utils/persian-digits";
 
 type SpecialtySelectionProps = {
     onSelect: (specialty: Specialty) => void;
@@ -12,17 +17,15 @@ type SpecialtySelectionProps = {
 };
 
 export default function SpecialtySelection({
-    onSelect,
-    onBack,
-    onCancel,}: SpecialtySelectionProps) {
-    const [specialties, setSpecialties] =
-        useState<Specialty[]>([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [error, setError] =
-        useState<string | null>(null);
+                                               onSelect,
+                                               onBack,
+                                               onCancel,
+                                           }: SpecialtySelectionProps) {
+    const [specialties, setSpecialties] = useState<SpecialtyWithAvailability[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [failed, setFailed] = useState(false);
+    // با تغییر این شماره، بدون بارگذاری مجدد صفحه (و پاک شدن مراحل) دوباره دریافت می‌کنیم
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
@@ -30,21 +33,16 @@ export default function SpecialtySelection({
         async function loadSpecialties() {
             try {
                 setLoading(true);
-                setError(null);
+                setFailed(false);
 
-                const data =
-                    await fetchSpecialties();
+                const data = await fetchSpecialties();
 
                 if (!cancelled) {
                     setSpecialties(data);
                 }
-            } catch (error) {
+            } catch {
                 if (!cancelled) {
-                    setError(
-                        error instanceof Error
-                            ? error.message
-                            : "خطا در دریافت تخصص ها"
-                    );
+                    setFailed(true);
                 }
             } finally {
                 if (!cancelled) {
@@ -58,84 +56,49 @@ export default function SpecialtySelection({
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [attempt]);
 
     return (
-        <div className="flex min-h-full flex-col">
-            {/* عنوان */}
-            <div className="mb-8 text-center">
-                <h1 className='text-3xl font-bold'>
-                    تخصص مورد نظر را انتخاب کنید
-                </h1>
+        <Screen
+            title="تخصص مورد نظر را انتخاب کنید"
+            hint="یکی از تخصص‌ها را لمس کنید"
+            onBack={onBack}
+            onCancel={onCancel}
+        >
+            {loading && <StatusPanel tone="loading" title="در حال دریافت تخصص‌ها…" />}
 
-                <p className='mt-3 text-lg opacity-70'>
-                    تخصص مورد نظر را لمس کنید
-                </p>
-            </div>
-
-            {/* Loading */}
-            {loading && (
-                <div className='flex flex-1 items-center justify-center'>
-                    <div className='tetx-xl'>
-                        در حال دریافت تخصص ها...
-                    </div>
-                </div>
+            {!loading && failed && (
+                <StatusPanel
+                    tone="error"
+                    title="تخصص‌ها بارگذاری نشد"
+                    description="ارتباط با سرور برقرار نشد. دوباره تلاش کنید یا به پذیرش مراجعه کنید."
+                >
+                    <Button onClick={() => setAttempt((value) => value + 1)}>تلاش دوباره</Button>
+                </StatusPanel>
             )}
 
-            {/* Error */}
-            {!loading && error && (
-                <div className='flex flex-1 flex-col items-center justify-center gap-6'>
-                    <p className='text-xl'>
-                        {error}
-                    </p>
-
-                    <button
-                        type='button'
-                        onClick={() => window.location.reload()}
-                        className='min-h-16 rounded-2xl bg-darkblue px-10 text-lg font-bold text-white'
-                    >
-                        تلاش مجدد
-                    </button>
-                </div>
-            )}
-
-            {/* Specialties */}
-            {!loading &&
-                !error &&
-                specialties.length > 0 && (
-                    <div className='grid flex-1 grid-cols-2 gap-6 lg:grid-cols-3'>
-                        {specialties.map((specialty) => (
-                            <button
-                                key={specialty.id}
-                                type='button'
-                                onClick={() => onSelect(specialty)
-                                }
-                                className='flex min-h-48 flex-col items-center justify-center rounded-3xl border border-white/30 bg-white/15 p-8 text-center shadow-lg backdrop-blur-md transition-transform active:scale-[0.97]'
-                            >
-                                <span className='text-2xl font-bold'>
-                                    {specialty.name}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-            {/* No specialties */}
-            {!loading &&
-                !error &&
-                specialties.length === 0 && (
-                    <div className="flex flex-1 items-center justify-center">
-                        <p className='text-xl'>
-                            در حال حاضر تخصص فعالی برای امروز وجود ندارد
-                        </p>
-                    </div>
-                )}
-
-            {/* Navigation */}
-            <KioskNavigation
-                onBack={onBack}
-                onCancel={onCancel}
+            {!loading && !failed && specialties.length === 0 && (
+                <StatusPanel
+                    tone="empty"
+                    title="امروز تخصصی برای ثبت نوبت در دسترس نیست"
+                    description="برای راهنمایی به پذیرش مراجعه کنید."
                 />
-        </div>
+            )}
+
+            {!loading && !failed && specialties.length > 0 && (
+                <div className="grid grid-cols-2 gap-5 lg:grid-cols-3">
+                    {specialties.map((specialty) => (
+                        <ChoiceCard
+                            key={specialty.id}
+                            size="compact"
+                            icon={<SpecialtyIcon name={specialty.icon} className="size-10" />}
+                            title={specialty.name}
+                            description={`${toPersianDigits(specialty.availableDoctorCount)} پزشک حاضر`}
+                            onClick={() => onSelect(specialty)}
+                        />
+                    ))}
+                </div>
+            )}
+        </Screen>
     );
 }

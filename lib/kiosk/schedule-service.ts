@@ -1,8 +1,8 @@
 import {
-    doctors,
-    doctorSchedules,
-    scheduleExceptions,
-} from "@/data/kiosk-data";
+    findActiveException,
+    getDoctor,
+    listRegularSchedules,
+} from "@/lib/db/repositories";
 import { getServerNow } from "@/lib/time/server-clock";
 import {
     getTehranDateKey as formatDate,
@@ -39,77 +39,39 @@ function isTimeInRange(
 }
 
 /**
- * برنامه هفتگی معتبر پزشک در یک تاریخ مشخص
+ * برنامه هفتگی معتبر پزشک برای تاریخ داده‌شده.
  */
-export function getRegularSchedules(
+export async function getRegularSchedules(
     doctorId: number,
     date: Date
-): DoctorSchedule[] {
-    const dateString = formatDate(date);
-    const weekday = getWeekday(date);
-
-    return doctorSchedules.filter((schedule) => {
-        if (schedule.doctorId !== doctorId) return false;
-        if (!schedule.isActive) return false;
-        if (schedule.weekday !== weekday) return false;
-        if (dateString < schedule.validFrom) return false;
-        if (
-            schedule.validUntil &&
-            dateString > schedule.validUntil
-        ) {
-            return false;
-        }
-
-        return true;
-    });
+): Promise<DoctorSchedule[]> {
+    return listRegularSchedules(doctorId, getWeekday(date), formatDate(date));
 }
 
 /**
- * استثنای فعال پزشک در یک تاریخ مشخص
+ * استثنای فعال پزشک برای تاریخ داده‌شده (غیبت یا ساعت جایگزین).
  */
-export function getScheduleException(
+export async function getScheduleException(
     doctorId: number,
     date: Date
-): ScheduleException | null {
-    const dateString = formatDate(date);
-
-    return (
-        scheduleExceptions.find(
-            (exception) =>
-                exception.doctorId === doctorId &&
-                exception.date === dateString &&
-                exception.isActive
-        ) ?? null
-    );
+): Promise<ScheduleException | null> {
+    return findActiveException(doctorId, formatDate(date));
 }
 
 /**
- * برنامه نهایی پزشک در یک روز
- *
- * اولویت:
- *
- * disabled
- * ↓
- * override
- * ↓
- * برنامه عادی هفتگی
+ * برنامه نهایی پزشک در یک روز (با در نظر گرفتن استثنا).
  */
-export function getEffectiveSchedules(
+export async function getEffectiveSchedules(
     doctorId: number,
     date: Date = getTehranNow()
-): TimeRange[] {
-    const doctor = doctors.find(
-        (doctor) => doctor.id === doctorId
-    );
+): Promise<TimeRange[]> {
+    const doctor = await getDoctor(doctorId);
 
     if (!doctor || !doctor.isActive) {
         return [];
     }
 
-    const exception = getScheduleException(
-        doctorId,
-        date
-    );
+    const exception = await getScheduleException(doctorId, date);
 
     /**
      * پزشک برای این روز کاملاً غیرفعال شده.
@@ -137,37 +99,32 @@ export function getEffectiveSchedules(
     /**
      * برنامه عادی هفتگی.
      */
-    return getRegularSchedules(doctorId, date).map(
-        (schedule) => ({
-            startTime: schedule.startTime,
-            endTime: schedule.endTime,
-        })
-    );
+    const regular = await getRegularSchedules(doctorId, date);
+
+    return regular.map((schedule) => ({
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+    }));
 }
 
 /**
  * آیا پزشک در این روز اصلاً برنامه دارد؟
  */
-export function isDoctorScheduledToday(
+export async function isDoctorScheduledToday(
     doctorId: number,
     date: Date = getTehranNow()
-): boolean {
-    return (
-        getEffectiveSchedules(doctorId, date).length > 0
-            );
+): Promise<boolean> {
+    return (await getEffectiveSchedules(doctorId, date)).length > 0;
 }
 
 /**
  * آیا پزشک در همین لحظه در ساعت حضور خود قرار دارد؟
  */
-export function isDoctorAvailableNow(
+export async function isDoctorAvailableNow(
     doctorId: number,
     date: Date = getTehranNow()
-): boolean {
-    const schedules = getEffectiveSchedules(
-        doctorId,
-        date
-    );
+): Promise<boolean> {
+    const schedules = await getEffectiveSchedules(doctorId, date);
 
     if (schedules.length === 0) {
         return false;
@@ -175,30 +132,21 @@ export function isDoctorAvailableNow(
 
     const currentTime = getTehranTime(date);
 
-    return schedules.some((schedule) =>
-        isTimeInRange(currentTime, schedule)
-    );
+    return schedules.some((schedule) => isTimeInRange(currentTime, schedule));
 }
 
-export function getDoctorAvailability(
+export async function getDoctorAvailability(
     doctorId: number,
     date: Date = getTehranNow()
 ) {
-    const schedules = getEffectiveSchedules(
-        doctorId,
-        date
-    );
+    const schedules = await getEffectiveSchedules(doctorId, date);
+    const currentTime = getTehranTime(date);
 
     return {
         scheduled: schedules.length > 0,
-        availableNow: schedules.some((schedule) => {
-            const currentTime = getTehranTime(date);
-
-            return isTimeInRange(
-                currentTime,
-                schedule
-            );
-        }),
+        availableNow: schedules.some((schedule) =>
+            isTimeInRange(currentTime, schedule)
+        ),
         schedules,
     };
 }

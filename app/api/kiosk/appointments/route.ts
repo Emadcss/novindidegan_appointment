@@ -1,75 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAppointment } from "@/lib/kiosk/appointment-service";
+import { KioskError } from "@/lib/kiosk/errors";
+import { errorResponse, readJsonObject } from "@/lib/kiosk/http";
+import { parseIdentity } from "@/lib/kiosk/identity";
+
+function parseId(value: unknown, label: string): number {
+    const id = Number(value);
+
+    if (!Number.isInteger(id) || id <= 0) {
+        throw new KioskError("VALIDATION", `شناسه ${label} نامعتبر است`);
+    }
+
+    return id;
+}
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        const body = await readJsonObject(request);
 
-        const specialtyId = Number(body.specialtyId);
-        const doctorId = Number(body.doctorId);
+        const identity = parseIdentity(body);
+        const specialtyId = parseId(body.specialtyId, "تخصص");
+        const doctorId = parseId(body.doctorId, "پزشک");
 
-        const nationalId =
-            typeof body.nationalId === "string" ? body.nationalId : null;
+        const hasSurgeryHistory =
+            typeof body.hasSurgeryHistory === "boolean"
+                ? body.hasSurgeryHistory
+                : null;
 
-        const mobile =
-            typeof body.mobile === "string" ? body.mobile : null;
-
-        if (!Number.isInteger(specialtyId) || specialtyId <= 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "شناسه تخصص نامعتبر است",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (!Number.isInteger(doctorId) || doctorId <= 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "شناسه پزشک نامعتبر است",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (!nationalId && !mobile) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "کد ملی یا شماره موبایل الزامی است",
-                },
-                { status: 400 }
-            );
-        }
-
-        const nationality =
-            body.nationality === "iranian" || body.nationality === "foreign"
-                ? body.nationality
-                : nationalId
-                    ? "iranian"
-                    : mobile
-                        ? "foreign"
-                        : null;
-
-        if (!nationality) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "ملیت نامعتبر است",
-                },
-                { status: 400 }
-            );
-        }
+        const requestId =
+            typeof body.requestId === "string" &&
+            body.requestId.length > 0 &&
+            body.requestId.length <= 100
+                ? body.requestId
+                : null;
 
         // تاریخ/ساعت نوبت را کلاینت نمی‌فرستد؛ سرور داخل createAppointment می‌سازد
         const appointment = await createAppointment({
             specialtyId,
             doctorId,
-            nationality,
-            nationalId,
-            mobile,
+            ...identity,
+            hasSurgeryHistory,
+            requestId,
         });
 
         return NextResponse.json({
@@ -82,30 +53,6 @@ export async function POST(request: NextRequest) {
             },
         });
     } catch (error) {
-        console.error("POST /api/kiosk/appointments error", error);
-
-        const message =
-            error instanceof Error && error.message
-                ? error.message
-                : "خطا در ایجاد نوبت";
-
-        //throw error 400
-        const businessErrors = [
-            "کد ملی یا شماره موبایل الزامی است",
-            "تخصص معتبر نیست",
-            "پزشک معتبر نیست",
-            "پزشک برای امروز برنامه حضور ندارد",
-            "در حال حاضر خارج از ساعت حضور پزشک است",
-        ];
-
-        const status = businessErrors.includes(message) ? 400 : 500;
-
-        return NextResponse.json(
-            {
-                success: false,
-                message,
-            },
-            { status }
-        );
+        return errorResponse(error, "POST /api/kiosk/appointments error");
     }
 }

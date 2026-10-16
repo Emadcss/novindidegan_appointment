@@ -1,9 +1,6 @@
-import  type {
-    Appointment,
-    DailyAppointmentCounter,
+import type {
     Doctor,
     DoctorSchedule,
-    Patient,
     ScheduleException,
     Specialty,
 } from "@/types/kiosk";
@@ -97,78 +94,29 @@ export const doctors: Doctor[] = [
     },
 ];
 
-export const doctorSchedules: DoctorSchedule[] = [
-    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
-        id: index + 1,
-        doctorId: 1,
-        weekday,
-        startTime: "08:00",
-        endTime: "20:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    })),
-
-    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
-        id: index + 8,
-        doctorId: 2,
-        weekday,
-        startTime: "14:00",
-        endTime: "18:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    })),
-
-    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
-        id: index + 15,
-        doctorId: 3,
-        weekday,
-        startTime: "09:00",
-        endTime: "18:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    })),
-
-    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
-        id: index + 22,
-        doctorId: 4,
-        weekday,
-        startTime: "09:00",
-        endTime: "13:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    })),
-
-    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
-        id: index + 29,
-        doctorId: 5,
-        weekday,
-        startTime: "10:00",
-        endTime: "14:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    })),
-
-    ...[0, 1, 2, 3, 4, 5, 6].map((weekday, index) => ({
-        id: index + 32,
-        doctorId: 6,
-        weekday,
-        startTime: "15:00",
-        endTime: "19:00",
-        validFrom: "2026-01-01",
-        validUntil: null,
-        isActive: true,
-    })),
+/** ساعت حضور هفتگی هر پزشک (همه‌ی روزهای هفته؛ داده‌ی نمونه) */
+const weeklyHours: { doctorId: number; startTime: string; endTime: string }[] = [
+    { doctorId: 1, startTime: "08:00", endTime: "20:00" },
+    { doctorId: 2, startTime: "14:00", endTime: "18:00" },
+    { doctorId: 3, startTime: "09:00", endTime: "18:00" },
+    { doctorId: 4, startTime: "09:00", endTime: "13:00" },
+    { doctorId: 5, startTime: "10:00", endTime: "14:00" },
 ];
 
+// شناسه‌ها خودکار و یکتا ساخته می‌شوند (۷ روز × هر پزشک)
+export const doctorSchedules: DoctorSchedule[] = weeklyHours.flatMap(
+    ({ doctorId, startTime, endTime }, doctorIndex) =>
+        [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
+            id: doctorIndex * 7 + weekday + 1,
+            doctorId,
+            weekday,
+            startTime,
+            endTime,
+            validFrom: "2026-01-01",
+            validUntil: null,
+            isActive: true,
+        })),
+);
+
+/** استثناهای تاریخ‌دار (غیبت یا ساعت جایگزین) */
 export const scheduleExceptions: ScheduleException[] = [];
-
-export const patients: Patient[] = [];
-
-export const appointments: Appointment[] = [];
-
-export const dailyAppointmentCounters: DailyAppointmentCounter[] = [];

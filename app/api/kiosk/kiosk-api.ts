@@ -1,7 +1,7 @@
 import type {
     Doctor,
-    Specialty
-} from "@/types/kiosk";
+    SpecialtyWithAvailability,
+} from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/types/kiosk";
 
 type ApiResponse<T> = {
     success: boolean;
@@ -9,7 +9,7 @@ type ApiResponse<T> = {
     message?: string;
 };
 
-export async function fetchSpecialties(): Promise<Specialty[]> {
+export async function fetchSpecialties(): Promise<SpecialtyWithAvailability[]> {
     const response = await fetch(
         "/api/kiosk/specialties",
         {
@@ -18,7 +18,7 @@ export async function fetchSpecialties(): Promise<Specialty[]> {
         }
     );
 
-    const result: ApiResponse<Specialty[]> =
+    const result: ApiResponse<SpecialtyWithAvailability[]> =
         await response.json();
 
     if (!response.ok || !result.success) {
@@ -26,6 +26,11 @@ export async function fetchSpecialties(): Promise<Specialty[]> {
             result.message ||
             "خطا در دریافت تخصص ها"
         );
+    }
+
+    // پاسخ باید فهرست باشد؛ در غیر این صورت به‌جای صفحه‌ی خالی، خطا و «تلاش دوباره» نشان داده می‌شود
+    if (!Array.isArray(result.data)) {
+        throw new Error("پاسخ نامعتبر از سرور");
     }
 
     return result.data;
@@ -50,6 +55,10 @@ export async function fetchDoctors(
             result.message ||
             "خطا در دریافت پزشکان"
         );
+    }
+
+    if (!Array.isArray(result.data)) {
+        throw new Error("پاسخ نامعتبر از سرور");
     }
 
     return result.data;

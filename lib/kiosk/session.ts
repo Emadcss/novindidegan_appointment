@@ -5,7 +5,7 @@ import type {
     Nationality,
     PreviousAppointmentSummary,
     Specialty,
-} from "@/types/kiosk";
+} from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/types/kiosk";
 
 /**
  * وضعیت یک جلسه‌ی کیوسک و ماشین حالت آن.

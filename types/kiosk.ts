@@ -12,6 +12,7 @@ export type KioskStep =
     | "national-id"
     | "mobile"
     | "previous-lookup"
+    | "previous-select"
     | "previous-not-found"
     | "surgery-history"
     | "printing"
@@ -26,6 +27,11 @@ export type Specialty = {
     icon: string | null;
     isActive: boolean;
     sortOrder: number;
+};
+
+export type SpecialtyWithAvailability = Specialty & {
+    /** پزشکان فعال و حاضر در همین لحظه */
+    availableDoctorCount: number;
 };
 
 export type Doctor = {
@@ -65,11 +71,10 @@ export type ScheduleException = {
     isActive: boolean;
 };
 
+/** هویت (کد ملی/موبایل) فقط به‌صورت hash و رمزنگاری‌شده در دیتابیس است و در این تایپ نمی‌آید */
 export type Patient = {
     id: number;
     nationality: Nationality;
-    nationalId: string | null;
-    mobile: string | null;
     createdAt: string;
 };
 
@@ -89,11 +94,10 @@ export type Appointment = {
     /** ساعت ثبت/نوبت — Asia/Tehran — توسط سرور */
     appointmentTime: string;
     appointmentNumber: number;
-    nationality: Nationality;
-    nationalId: string | null;
-    mobile: string | null;
     hasSurgeryHistory: boolean | null;
     status: AppointmentStatus;
+    /** شناسه‌ی یکتای درخواست ثبت (برای جلوگیری از ثبت تکراری) */
+    requestId?: string | null;
     createdAt: string;
 };
 
@@ -104,6 +108,7 @@ export type CreateAppointmentInput = {
     nationalId: string | null;
     mobile: string | null;
     hasSurgeryHistory?: boolean | null;
+    requestId?: string | null;
 };
 
 export type DailyAppointmentCounter = {
@@ -114,13 +119,21 @@ export type DailyAppointmentCounter = {
     lastNumber: number;
 };
 
+/** خلاصه‌ی یک نوبت فعال امروز برای نمایش و دریافت دوباره‌ی قبض */
+export type PreviousAppointmentSummary = {
+    appointmentId: number;
+    appointmentNumber: number;
+    appointmentDate: string;
+    appointmentTime: string;
+    specialty: Specialty | null;
+    doctor: Doctor | null;
+    hasSurgeryHistory: boolean | null;
+};
+
 export type PreviousAppointmentLookupResult = {
     found: boolean;
-    appointmentId: number | null;
-    specialtyId: number | null;
-    doctorId: number | null;
-    requiresSurgeryHistory: boolean;
-    hasSurgeryHistory: boolean | null;
+    /** نوبت‌های فعال امروز، جدیدترین اول */
+    appointments: PreviousAppointmentSummary[];
 };
 
 export type KioskSession = {

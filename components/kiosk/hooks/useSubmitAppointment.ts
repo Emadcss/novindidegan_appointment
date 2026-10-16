@@ -2,8 +2,8 @@
 
 import { useCallback, useRef, type Dispatch } from "react";
 
-import { createAppointmentApi, createRequestId } from "@/lib/kiosk/api-client";
-import type { KioskAction, KioskState } from "@/lib/kiosk/session";
+import { createAppointmentApi, createRequestId } from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/kiosk/api-client";
+import type { KioskAction, KioskState } from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/kiosk/session";
 
 export type SubmitOptions = {
     surgeryHistory: boolean | null;

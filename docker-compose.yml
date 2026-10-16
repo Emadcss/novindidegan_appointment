@@ -1,0 +1,17 @@
+# PostgreSQL برای توسعه:  docker compose up -d
+# (اگر PostgreSQL را مستقیم روی سیستم نصب کرده‌اید، به این فایل نیازی نیست.)
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kiosk_app
+      POSTGRES_PASSWORD: CHANGE_ME
+      POSTGRES_DB: kiosk
+    ports:
+      - "5432:5432"
+    volumes:
+      - kiosk_pg:/var/lib/postgresql/data
+
+volumes:
+  kiosk_pg:

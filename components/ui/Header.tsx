@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import {formatPersianDateFull, formatPersianTimeWithSeconds} from "@/lib/utils/persian-date";
-import {toPersianDigits} from "@/lib/utils/persian-digits";
+import { formatPersianDateFull, formatPersianTimeWithSeconds } from "@/lib/utils/persian-date";
+import { toPersianDigits } from "@/lib/utils/persian-digits";
 import {
   getServerNow,
   isServerTimeSynced,
-    syncServerTime,
+  syncServerTime,
 } from "@/lib/time/client-clock";
 import { SERVER_TIME_RESYNC_MS } from "@/lib/time/constants";
 
@@ -15,29 +15,26 @@ type HeaderProps = {
   compact?: boolean;
 };
 
-export default function Header({compact = false}: HeaderProps) {
+export default function Header({ compact = false }: HeaderProps) {
   const [now, setNow] = useState<Date | null>(null);
-  const [timeReady, setTimeReady] = useState(false);
+  const [syncFailed, setSyncFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function boot() {
-      try {
-        await syncServerTime();
-        if (!cancelled) {
-          setNow(getServerNow());
-          setTimeReady(true);
-        }
-      } catch {
-        if (!cancelled) {
-          setTimeReady(false);
-          setNow(null);
-        }
-      }
+    function applySync() {
+      return syncServerTime()
+          .then(() => {
+            if (cancelled) return;
+            setNow(getServerNow());
+            setSyncFailed(false);
+          })
+          .catch(() => {
+            if (!cancelled) setSyncFailed(true);
+          });
     }
 
-    boot();
+    applySync();
 
     const tick = window.setInterval(() => {
       if (isServerTimeSynced()) {
@@ -45,173 +42,62 @@ export default function Header({compact = false}: HeaderProps) {
       }
     }, 1000);
 
-    const resync = window.setInterval(() => {
-      syncServerTime()
-          .then(() => {
-            if (!cancelled) {
-              setNow(getServerNow());
-              setTimeReady(true);
-            }
-          })
-      .catch(() => {
-        // sync بعدی دوباره تلاش می‌کند
-      });
-    }, SERVER_TIME_RESYNC_MS);
+    const resync = window.setInterval(applySync, SERVER_TIME_RESYNC_MS);
 
     return () => {
       cancelled = true;
       window.clearInterval(tick);
       window.clearInterval(resync);
     };
-    }, []);
+  }, []);
 
   return (
-    <header
-      className={`
-        flex
-        w-full
-        flex-row
-        items-center
-        justify-between
-        gap-4
-        ${compact ? "py-1" : "py-2"}
-      `}
-    >
-      {/* ==========================================
-          Logo
-          ========================================== */}
+      <header
+          className={`flex w-full items-center justify-between gap-6 px-8 short:px-6 ${
+              compact ? "py-2 short:py-1" : "py-4"
+          }`}
+      >
+        {/* هویت مرکز: گوشه‌ی راست */}
+        <div className="flex items-center gap-4">
+          <Image
+              src="/novindidegan.png"
+              alt="لوگوی کلینیک فوق تخصصی نوین دیدگان"
+              width={96}
+              height={96}
+              priority
+              className={compact ? "size-16 short:size-14" : "size-24"}
+          />
 
-      <div className="flex shrink-0 flex-row items-center gap-2">
-        <Image
-          src="/novindidegan.png"
-          alt="لوگوی کلینیک فوق تخصصی نوین دیدگان"
-          width={100}
-          height={50}
-          priority
-          className={`
-            h-auto
-            ${compact ? "w-14" : "w-18 lg:w-22.5"}`}
-        />
-
-        <div className="flex flex-col items-center leading-none">
-          <h1
-            className={`
-              font-ghasem
-              bg-linear-30
-              from-darkblue
-              to-lightblue
-              bg-clip-text
-              text-transparent
-              ${compact ? "text-sm" : "text-lg md:text-xl lg:text-2xl"}
-            `}
-          >
+          <div className="flex flex-col leading-tight text-brand">
+          <span className={`font-logo ${compact ? "text-body short:text-hint" : "text-title"}`}>
             کلینیک فوق تخصصی
-          </h1>
-
-          <h1
-            className={`
-              font-ghasem
-              mt-0.5
-              bg-linear-30
-              from-darkblue
-              to-lightblue
-              bg-clip-text
-              text-transparent
-              ${compact ? "text-3xl" : "text-5xl md:text-6xl lg:text-2xl"}
-            `}
-          >
+          </span>
+            <span className={`font-logo ${compact ? "text-heading short:text-title" : "text-display"}`}>
             نوین دیدگان
-          </h1>
+          </span>
+          </div>
         </div>
-      </div>
 
-      {/* ==========================================
-          Date / Time / System Status
-          ========================================== */}
-
-      <div className="flex items-center gap-2">
-
-        {/* Date & Time */}
-
-        <div
-            className={`
-            hidden flex-col items-end rounded-2xl border border-novingray bg-white/4 backdrop-blur-xl sm:flex
-            ${compact ? "px-3 py-1" : "px-4 py-2"}
-          `}
-        >
-          {timeReady && now ? (
-              <>
-              <span
-                  className={`text-novinpink ${compact ? "text-[10px]" : "text-xs"}`}
+        {/* ساعت و وضعیت ارتباط: گوشه‌ی چپ */}
+        <div className="flex items-center gap-4">
+          {syncFailed && (
+              <p
+                  role="status"
+                  className="rounded-full bg-warning-soft px-5 py-2 text-hint font-bold text-warning"
               >
-                {formatPersianDateFull(now)}
-              </span>
+                ارتباط با سرور برقرار نیست
+              </p>
+          )}
 
-                <span
-                    dir="ltr"
-                    className={`
-                  font-mono font-semibold tracking-wider text-white/90 tabular-nums
-                  ${compact ? "mt-0 text-base" : "mt-0.5 text-lg"}
-                `}
-                >
-                {toPersianDigits(formatPersianTimeWithSeconds(now))}
-              </span>
-              </>
-          ) : (
-              <span className={`text-white/50 ${compact ? "text-[10px]" : "text-xs"}`}>
-              همگام‌سازی ساعت...
+          {now && (
+              <div className="flex flex-col items-end leading-tight">
+            <span dir="ltr" className="text-heading short:text-title font-bold tabular-nums text-ink">
+              {toPersianDigits(formatPersianTimeWithSeconds(now))}
             </span>
+                <span className="text-hint text-ink-muted">{formatPersianDateFull(now)}</span>
+              </div>
           )}
         </div>
-
-        {/* System Status */}
-
-        <div
-          className={`
-            flex
-            items-center
-            gap-2
-            rounded-full
-            border
-            border-emerald-400/10
-            bg-white/4
-            backdrop-blur-xl
-            ${compact ? "px-3 py-2" : "px-4 py-3 md:px-5"}
-          `}
-          >
-              <span
-            className="
-              relative
-              flex
-              h-2.5
-              w-2.5
-              shrink-0
-              rounded-full
-              bg-emerald-400
-            "
-          >
-            <span
-              className="
-                absolute
-                inset-0
-                animate-ping
-                rounded-full
-                bg-emerald-400/60
-              "
-            />
-          </span>
-
-          <span className={`
-            hidden
-            text-white/55
-            md:block
-            ${compact ? "text-xs" : "text-sm"}
-          `}
-          >
-            سیستم آماده است
-          </span>
-        </div>
-      </div>
-    </header>
+      </header>
   );
 }

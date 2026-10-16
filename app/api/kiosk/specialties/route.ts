@@ -7,13 +7,15 @@ import { getServerNow } from "@/lib/time/server-clock";
 export async function GET() {
     try {
         const specialties =
-            getAvailableSpecialtiesForDate(getServerNow());
+            await getAvailableSpecialtiesForDate(getServerNow());
 
         return NextResponse.json({
             success: true,
             data: specialties,
         });
-    } catch {
+    } catch (error) {
+        console.error("GET /api/kiosk/specialties error:", error);
+
         return NextResponse.json(
             {
                 success: false,

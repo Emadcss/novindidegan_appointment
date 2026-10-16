@@ -192,3 +192,131 @@ body {
           transparent 73%
   );
 }
+
+
+/* =========================================
+   Appointment ticket printing
+   Initial target: 80mm thermal paper
+   ========================================= */
+
+.appointment-ticket-print {
+  display: none;
+}
+  @media print {
+    @page {
+      size: 80mm auto;
+      margin: 0;
+    }
+
+    html,
+    body {
+      width: 80mm !important;
+      min-width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      color: #111 !important;
+    }
+
+    body * {
+      visibility: hidden !important;
+    }
+
+    .appointment-ticket-print,
+    .appointment-ticket-print * {
+      visibility: visible !important;
+    }
+
+    .appointment-ticket-print {
+      display: block !important;
+      position: absolute !important;
+      top: 0 !important;
+      right: auto !important;
+      left: 0 !important;
+      box-sizing: border-box !important;
+      width: 80mm !important;
+      margin: 0 !important;
+      padding: 4mm !important;
+      background: #fff !important;
+      color: #111 !important;
+      direction: rtl !important;
+      font-family: var(--font-ghasem), serif;
+      font-size: 12px !important;
+      line-height: 1.7 !important;
+      text-align: center !important;
+      box-shadow: none !important;
+    }
+
+    .ticket-clinic-subtitle {
+      margin: 0;
+      font-size: 11px;
+    }
+
+    .ticket-clinic-name {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .ticket-title {
+      margin: 2mm 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .ticket-divider {
+      height: 0;
+      margin: 3mm 0;
+      border-top: 1px solid #777;
+    }
+
+    .ticket-divider-dashed {
+      border-top-style: dashed;
+    }
+
+    .ticket-number-block {
+      margin: 3mm 0;
+      padding: 2mm 0;
+      border: 1.5px solid #111;
+      border-radius: 2mm;
+    }
+
+    .ticket-number-block p {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .ticket-number-block strong {
+      display: block;
+      font-size: 34px;
+      line-height: 1.35;
+    }
+
+    .ticket-details {
+      margin-top: 3mm;
+      text-align: right;
+    }
+
+    .ticket-details p {
+      display: flex;
+      justify-content: space-between;
+      gap: 3mm;
+      margin: 1.5mm 0;
+    }
+
+    .ticket-details strong {
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .ticket-instruction {
+      margin: 3mm 0;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .ticket-footer {
+      margin: 2mm 0 0;
+      font-size: 10px;
+    }
+  }

@@ -1,112 +1,74 @@
 import {
-    doctors,
-    specialties,
-} from "@/data/kiosk-data";
-
+    getDoctor,
+    getSpecialty,
+    listDoctors,
+    listSpecialties,
+} from "@/lib/db/repositories";
 import { isDoctorAvailableNow } from "@/lib/kiosk/schedule-service";
+import { getServerNow } from "@/lib/time/server-clock";
 
 import type {
     Doctor,
     Specialty,
+    SpecialtyWithAvailability,
 } from "@/types/kiosk";
-
-import { getServerNow } from "@/lib/time/server-clock";
 
 /**
  * تمام تخصص‌های فعال مرکز
  */
-export function getActiveSpecialties(): Specialty[] {
-    return specialties
-        .filter((specialty) => specialty.isActive)
-        .sort(
-            (a, b) =>
-                a.sortOrder - b.sortOrder
-        );
+export async function getActiveSpecialties(): Promise<Specialty[]> {
+    return (await listSpecialties()).filter((specialty) => specialty.isActive);
+}
+
+/** پزشکانی از فهرست که همین لحظه در ساعت حضور خود هستند */
+async function filterAvailable(doctors: Doctor[], date: Date): Promise<Doctor[]> {
+    const flags = await Promise.all(
+        doctors.map((doctor) => isDoctorAvailableNow(doctor.id, date)),
+    );
+
+    return doctors.filter((_, index) => flags[index]);
 }
 
 /**
- * پزشکان یک تخصص که در تاریخ مشخص
- * برنامه کاری دارند.
+ * پزشکان یک تخصص که همین لحظه در ساعت حضور خود هستند.
  */
-export function getAvailableDoctorsForSpecialty(
+export async function getAvailableDoctorsForSpecialty(
     specialtyId: number,
     date: Date = getServerNow(),
-): Doctor[] {
-    return doctors
-        .filter((doctor) => {
-            if (doctor.specialtyId !== specialtyId) {
-                return false;
-            }
+): Promise<Doctor[]> {
+    const candidates = (await listDoctors()).filter(
+        (doctor) => doctor.specialtyId === specialtyId && doctor.isActive,
+    );
 
-            if (!doctor.isActive) {
-                return false;
-            }
-
-            return isDoctorAvailableNow(
-                doctor.id,
-                date
-            );
-        })
-        .sort(
-            (a, b) =>
-                a.sortOrder - b.sortOrder
-        );
+    return filterAvailable(candidates, date);
 }
 
-export function getAvailableSpecialtiesForDate(
+/**
+ * تخصص‌هایی که حداقل یک پزشک حاضر دارند، به‌همراه تعداد پزشکان حاضر.
+ */
+export async function getAvailableSpecialtiesForDate(
     date: Date = getServerNow(),
-): Specialty[] {
+): Promise<SpecialtyWithAvailability[]> {
+    const activeDoctors = (await listDoctors()).filter((doctor) => doctor.isActive);
+    const availableDoctors = await filterAvailable(activeDoctors, date);
+    const specialties = await getActiveSpecialties();
+
     return specialties
-        .filter((specialty) => {
-            if (!specialty.isActive) {
-                return false;
-            }
-
-            return doctors.some((doctor) => {
-                if (doctor.specialtyId !== specialty.id) {
-                    return false;
-                }
-
-                if (!doctor.isActive) {
-                    return false;
-                }
-
-                return isDoctorAvailableNow(
-                    doctor.id,
-                    date
-                );
-            });
-        })
-    .sort(
-        (a, b) =>
-            a.sortOrder - b.sortOrder
-    );
+        .map((specialty) => ({
+            ...specialty,
+            availableDoctorCount: availableDoctors.filter(
+                (doctor) => doctor.specialtyId === specialty.id,
+            ).length,
+        }))
+        .filter((specialty) => specialty.availableDoctorCount > 0);
 }
 
-/**
- * پیدا کردن تخصص
- */
-export function getSpecialtyById(
-    specialtyId: number
-): Specialty | null {
-    return (
-        specialties.find(
-            (specialty) =>
-                specialty.id === specialtyId
-        ) ?? null
-    );
+export async function getSpecialtyById(
+    specialtyId: number,
+): Promise<Specialty | null> {
+    return getSpecialty(specialtyId);
 }
 
-/**
- * پیدا کردن پزشک
- */
-export function getDoctorById(
-    doctorId: number
-): Doctor | null {
-    return (
-        doctors.find(
-            (doctor) =>
-                doctor.id === doctorId
-        ) ?? null
-    );
+export async function getDoctorById(doctorId: number): Promise<Doctor | null> {
+    return getDoctor(doctorId);
 }

@@ -1,63 +1,42 @@
 "use client";
 
+import Button from "@/components/ui/Button";
+import { ChevronRightIcon } from "@/components/ui/Icons";
+
 type KioskNavigationProps = {
-  onBack: () => void;
-  onCancel: () => void;
-  backLabel?: string;
-  cancelLabel?: string;
-  disabled?: boolean;
+    onBack: () => void;
+    onCancel: () => void;
+    backLabel?: string;
+    cancelLabel?: string;
+    disabled?: boolean;
 };
 
+/**
+ * ناوبری ثابت پایین هر صفحه.
+ * «بازگشت» سمت شروع (راست) و «انصراف» سمت مقابل است؛ جای آن‌ها در همه‌ی صفحه‌ها یکسان می‌ماند.
+ * «انصراف» عمدتاً کم‌رنگ است تا با عمل اصلی اشتباه گرفته نشود.
+ */
 export default function KioskNavigation({
-  onBack,
-  onCancel,
-  backLabel = "بازگشت",
-  cancelLabel = "لغو عملیات",
-  disabled = false,
-}: KioskNavigationProps) {
-  return (
-    <div className="mt-4 flex gap-3">
-      <button
-        type="button"
-        onClick={onBack}
-        disabled={disabled}
-        className="min-h-14
-        flex-1
-        rounded-2xl
-        border
-        border-white/30
-        bg-white/10
-        text-lg
-        font-bold
-        backdrop-blur-md
-        transition-all
-        active:scale-[0.98]
-        disabled:cursor-not-allowed
-        disabled:opacity-40
-        "
-      >
-        {backLabel}
-      </button>
+                                            onBack,
+                                            onCancel,
+                                            backLabel = "بازگشت",
+                                            cancelLabel = "انصراف",
+                                            disabled = false,
+                                        }: KioskNavigationProps) {
+    return (
+        <nav aria-label="پیمایش" className="flex items-center justify-between gap-4 pt-8 short:pt-3">
+            <Button
+                variant="secondary"
+                icon={<ChevronRightIcon className="size-7" />}
+                onClick={onBack}
+                disabled={disabled}
+            >
+                {backLabel}
+            </Button>
 
-      <button
-        type="button"
-        onClick={onCancel}
-        disabled={disabled}
-        className="min-h-14
-        flex-1
-        rounded-2xl
-        bg-red-500/80
-        text-lg
-        font-bold
-        text-white
-        backdrop-blur-md
-        transition-all
-        active:scale-[0.98]
-        disabled:cursor-not-allowed
-        disabled:opacity-40"
-      >
-        {cancelLabel}
-      </button>
-    </div>
-  );
+            <Button variant="quiet" onClick={onCancel} disabled={disabled}>
+                {cancelLabel}
+            </Button>
+        </nav>
+    );
 }

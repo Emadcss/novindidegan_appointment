@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-import { toPersianDigits } from "@/lib/utils/persian-digits";
+import { toPersianDigits } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/utils/persian-digits";
 
 type IdleWarningProps = {
     /** ثانیه‌های باقی‌مانده تا بازگشت خودکار */
