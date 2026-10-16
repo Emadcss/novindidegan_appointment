@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import KioskNavigation from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/components/ui/KioskNavigation";
+import KioskNavigation from "@/components/ui/KioskNavigation";
 
 type ScreenProps = {
     title: string;

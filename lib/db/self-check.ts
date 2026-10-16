@@ -12,11 +12,11 @@ import {
     insertAppointment,
     listRegularSchedules,
 } from "@/lib/db/repositories";
-import { createAppointment } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/kiosk/appointment-service";
-import { isKioskError } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/kiosk/errors";
-import { getAvailableDoctorsForSpecialty, getActiveSpecialties } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/kiosk/kiosk-service";
-import { getServerNow } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/time/server-clock";
-import { getTehranDateKey, getTehranWeekday } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/time/tehran-time";
+import { createAppointment } from "@/lib/kiosk/appointment-service";
+import { isKioskError } from "@/lib/kiosk/errors";
+import { getAvailableDoctorsForSpecialty, getActiveSpecialties } from "@/lib/kiosk/kiosk-service";
+import { getServerNow } from "@/lib/time/server-clock";
+import { getTehranDateKey, getTehranWeekday } from "@/lib/time/tehran-time";
 
 export type CheckResult = { name: string; ok: boolean; detail?: string };
 

@@ -1,4 +1,4 @@
-import { toPersianDigits } from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/utils/persian-digits";
+import { toPersianDigits } from "@/lib/utils/persian-digits";
 
 type DigitFieldProps = {
     value: string;

@@ -1,322 +1,151 @@
 @import "tailwindcss";
 
-:root {
-  --kiosk-void: #020a1a;
-  --kiosk-panel: #0b1a33;
-  --kiosk-clinical: #01a9ea;
-  --kiosk-navy: #012676;
-  --kiosk-soft: #e8f4fa;
-  --kiosk-alert: #f15152;
-  --kiosk-glass: rgba(255, 255, 255, 0.06);
-  --kiosk-border: rgba(255, 255, 255, 0.12);
-  --kiosk-focus: rgba(1, 169, 234, 0.55);
+/* صفحه‌های کم‌ارتفاع (لپ‌تاپ ۱۵ اینچ، مرورگر با نوار آدرس) */
+@custom-variant short (@media (max-height: 900px));
+
+/* =========================================================
+   توکن‌های طراحی کیوسک نوین دیدگان
+   منبع واحد رنگ، تایپوگرافی، شعاع و سایه.
+   در کامپوننت‌ها فقط از این توکن‌ها استفاده شود (نه hex و نه مقدار دلخواه).
+   ========================================================= */
+
+@theme {
+  /* --- رنگ: پایه --- */
+  --color-ink: #0a1f44;          /* متن اصلی */
+  --color-ink-muted: #4a5b75;    /* متن ثانویه (روی paper ≈ 6.4:1) */
+  --color-paper: #f2f7fc;        /* پس‌زمینه صفحه */
+  --color-surface: #ffffff;      /* کارت و فیلد */
+  --color-line: #c9d8e8;         /* حاشیه‌ی تزئینی */
+  --color-line-strong: #7a93b3;  /* حاشیه‌ی کنترل‌ها (≥ 3:1) */
+
+  /* --- رنگ: برند (از لوگو) --- */
+  --color-brand: #0a4da8;        /* عمل اصلی؛ روی سفید ≈ 8:1 */
+  --color-brand-strong: #083b80; /* حالت فشرده/hover */
+  --color-brand-soft: #e3effc;   /* پس‌زمینه‌ی ملایم برند */
+  --color-iris: #1aa7e8;         /* فقط تزئین (حلقه‌ها)، هرگز متن */
+
+  /* --- رنگ: معنایی --- */
+  --color-success: #0e7a4f;
+  --color-success-soft: #e4f4ec;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+  --color-warning: #8a5a00;
+  --color-warning-soft: #fff3d6;
+
+  /* --- شکل --- */
+  --radius-card: 1.5rem;
+  --radius-control: 1rem;
+
+  --shadow-card: 0 1px 2px rgb(10 31 68 / 0.06), 0 10px 28px rgb(10 31 68 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(8 59 128 / 0.2), 0 12px 28px rgb(10 77 168 / 0.28);
+
+  /* --- مقیاس نوشتار (حداقل ۱۸px؛ کیوسک از فاصله‌ی ۶۰–۸۰ سانتی‌متری دیده می‌شود) --- */
+  --text-hint: 1.125rem;
+  --text-hint--line-height: 1.7;
+  --text-body: 1.375rem;
+  --text-body--line-height: 1.8;
+  --text-title: 1.75rem;
+  --text-title--line-height: 1.4;
+  --text-heading: clamp(1.9rem, 3vw, 2.6rem);
+  --text-heading--line-height: 1.3;
+  --text-display: clamp(2.5rem, 5vw, 3.75rem);
+  --text-display--line-height: 1.2;
+  --text-ticket: 8rem;
+  --text-ticket--line-height: 1;
 }
 
-@theme{
-  --color-lightblue: #01a9ea;
-  --color-darkblue: #012676;
-  --color-novingray: #c0bda5;
-  --color-novinblack: #07020d;
-  --color-novingreen: #345830;
-  --color-novinmutedblue: #427aa1;
-  --color-novinlightblue: #00abe7;
-  --color-novinred: #fa003f;
-  --color-novinpink: #f15152;
-  --color-novinemutedgreen: #466365;
-
-  --color-kiosk-void: var(--kiosk-void);
-  --color-kiosk-panel: var(--kiosk-panel);
-  --color-kiosk-clinical: var(--kiosk-clinical);
-  --color-kiosk-navy: var(--kiosk-navy);
-  --color-kiosk-soft: var(--kiosk-soft);
-  --color-kiosk-alert: var(--kiosk-alert);
-}
+/* فونت‌ها از next/font در layout.tsx تعریف می‌شوند */
 @theme inline {
-  --font-ghasem: var(--font-ghasem);
-  --font-boom: var(--font-boom);
-  --font-negarregular: var(--font-negarregular);
-  --font-negarbold: var(--font-negarbold);
-  --font-mikhakregular: var(--font-mikhakregular);
-  --font-mikhaklight: var(--font-mikhaklight);
-  --font-mikhakmedium: var(--font-mikhakmedium);
-  --font-mikhakbold: var(--font-mikhakbold);
+  --font-sans: var(--font-mikhak-face), Tahoma, sans-serif;
+  --font-logo: var(--font-logo-face), var(--font-mikhak-face), Tahoma, sans-serif;
 }
 
-body {
-  background: var(--kiosk-void);
-  color: #f5fbff;
-  font-family: var(--font-mikhakmedium), "Mikhak Medium", "A Ghasem", Tahoma, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-mikhak-face), Tahoma, sans-serif;
+    font-weight: 500;
+    line-height: 1.7;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 4px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+
+  img {
+    -webkit-user-drag: none;
+  }
+}
+
+/* =========================================================
+   حرکت: فقط دو مورد، هر دو برای جلب توجه
+   ========================================================= */
+
+@keyframes touch-pulse {
+  0% {
+    transform: scale(0.94);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes ring-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.touch-pulse {
+  animation: touch-pulse 2.8s ease-out infinite;
+}
+
+.ring-turn {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-turn 120s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .iris-ring-outer,
-  .iris-ring-dashed,
-  .iris-ring-main,
-  .iris-arc,
-  .iris-scan,
-  .iris-fibers {
-    animation: none !important;
+  .touch-pulse,
+  .ring-turn {
+    animation: none;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* نوار شمارش معکوس بستن صفحه‌ی نوبت */
+@keyframes drain {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
-.kiosk-panel {
-  border: 1px solid var(--kiosk-border);
-  background: var(--kiosk-glass);
-  backdrop-filter: blur(20px);
-  border-radius: 1.75rem;
+.drain {
+  transform-origin: right;
+  animation-name: drain;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
-
-.kiosk-title {
-  font-family: var(--font-ghasem), serif;
-  letter-spacing: -0.02em;
-}
-
-.kiosk-hint {
-  color: rgba(232, 244, 250, 0.62);
-}
-
-
-
-
-/* =========================================
-   Iris Scanner Background
-   ========================================= */
-
-@keyframes irisRotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes irisRotateReverse {
-  from {
-    transform: rotate(360deg);
-  }
-
-  to {
-    transform: rotate(0deg);
-  }
-}
-
-@keyframes irisScan {
-  0% {
-    transform: translateY(-350px);
-    opacity: 0;
-  }
-
-  15% {
-    opacity: 0.4;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
-
-  85% {
-    opacity: 0.4;
-  }
-
-  100% {
-    transform: translateY(350px);
-    opacity: 0;
-  }
-}
-
-@keyframes irisPulse {
-  0%,
-  100% {
-    transform: scale(0.98);
-    opacity: 0.6;
-  }
-
-  50% {
-    transform: scale(1.02);
-    opacity: 0.9;
-  }
-}
-
-.iris-ring-outer {
-  animation: irisRotate 45s linear infinite;
-}
-
-.iris-ring-dashed {
-  animation: irisRotateReverse 30s linear infinite;
-}
-
-.iris-ring-main {
-  animation: irisRotate 22s linear infinite;
-}
-
-.iris-arc {
-  animation: irisRotate 12s linear infinite;
-}
-
-.iris-scan {
-  animation: irisScan 6s ease-in-out infinite;
-}
-
-.iris-fibers {
-  animation: irisPulse 6s ease-in-out infinite;
-
-  background:
-          repeating-conic-gradient(
-                  from 0deg,
-                  rgba(80, 210, 255, 0.38) 0deg 1deg,
-                  transparent 1deg 5deg
-          );
-
-  mask-image: radial-gradient(
-          circle,
-          transparent 0 18%,
-          black 19% 72%,
-          transparent 73%
-  );
-
-  -webkit-mask-image: radial-gradient(
-          circle,
-          transparent 0 18%,
-          black 19% 72%,
-          transparent 73%
-  );
-}
-
-
-/* =========================================
-   Appointment ticket printing
-   Initial target: 80mm thermal paper
-   ========================================= */
-
-.appointment-ticket-print {
-  display: none;
-}
-  @media print {
-    @page {
-      size: 80mm auto;
-      margin: 0;
-    }
-
-    html,
-    body {
-      width: 80mm !important;
-      min-width: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #fff !important;
-      color: #111 !important;
-    }
-
-    body * {
-      visibility: hidden !important;
-    }
-
-    .appointment-ticket-print,
-    .appointment-ticket-print * {
-      visibility: visible !important;
-    }
-
-    .appointment-ticket-print {
-      display: block !important;
-      position: absolute !important;
-      top: 0 !important;
-      right: auto !important;
-      left: 0 !important;
-      box-sizing: border-box !important;
-      width: 80mm !important;
-      margin: 0 !important;
-      padding: 4mm !important;
-      background: #fff !important;
-      color: #111 !important;
-      direction: rtl !important;
-      font-family: var(--font-ghasem), serif;
-      font-size: 12px !important;
-      line-height: 1.7 !important;
-      text-align: center !important;
-      box-shadow: none !important;
-    }
-
-    .ticket-clinic-subtitle {
-      margin: 0;
-      font-size: 11px;
-    }
-
-    .ticket-clinic-name {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 800;
-    }
-
-    .ticket-title {
-      margin: 2mm 0;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .ticket-divider {
-      height: 0;
-      margin: 3mm 0;
-      border-top: 1px solid #777;
-    }
-
-    .ticket-divider-dashed {
-      border-top-style: dashed;
-    }
-
-    .ticket-number-block {
-      margin: 3mm 0;
-      padding: 2mm 0;
-      border: 1.5px solid #111;
-      border-radius: 2mm;
-    }
-
-    .ticket-number-block p {
-      margin: 0;
-      font-size: 12px;
-    }
-
-    .ticket-number-block strong {
-      display: block;
-      font-size: 34px;
-      line-height: 1.35;
-    }
-
-    .ticket-details {
-      margin-top: 3mm;
-      text-align: right;
-    }
-
-    .ticket-details p {
-      display: flex;
-      justify-content: space-between;
-      gap: 3mm;
-      margin: 1.5mm 0;
-    }
-
-    .ticket-details strong {
-      font-weight: 700;
-      text-align: left;
-    }
-
-    .ticket-instruction {
-      margin: 3mm 0;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .ticket-footer {
-      margin: 2mm 0 0;
-      font-size: 10px;
-    }
-  }

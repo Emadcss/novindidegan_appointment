@@ -1,8 +1,8 @@
 "use client";
 
-import ChoiceCard from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/components/ui/ChoiceCard";
-import { HistoryIcon, PlusTicketIcon } from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/components/ui/Icons";
-import Screen from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/components/ui/Screen";
+import ChoiceCard from "@/components/ui/ChoiceCard";
+import { HistoryIcon, PlusTicketIcon } from "@/components/ui/Icons";
+import Screen from "@/components/ui/Screen";
 
 type MainChoiceStepProps = {
     onNew: () => void;

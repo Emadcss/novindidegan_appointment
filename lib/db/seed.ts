@@ -3,7 +3,7 @@ import {
     doctors,
     scheduleExceptions,
     specialties,
-} from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/data/kiosk-data";
+} from "@/data/kiosk-data";
 import type { Exec } from "@/lib/db/connection";
 
 /** جدول‌هایی که با شناسه‌ی صریح پر می‌شوند و شمارنده‌ی شناسه‌شان باید جلو برود */

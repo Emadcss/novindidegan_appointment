@@ -10,7 +10,7 @@ import type {
     Nationality,
     ScheduleException,
     Specialty,
-} from "../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/types/kiosk";
+} from "@/types/kiosk";
 
 /**
  * تمام کوئری‌های SQL پروژه اینجاست. سرویس‌ها (lib/kiosk) فقط همین توابع را صدا می‌زنند
