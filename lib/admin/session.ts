@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 const COOKIE = "nd_admin_session";
-const MAX_AGE_SEC = 60 * 60 * 12; // ۱۲ ساعت
+const MAX_AGE_SEC = 60 * 60 * 12;
 
 function secret(): string {
     const s = process.env.ADMIN_SESSION_SECRET;
@@ -16,10 +16,7 @@ function sign(payload: string): string {
     return createHmac("sha256", secret()).update(payload).digest("hex");
 }
 
-export type AdminSession = {
-    username: string;
-    exp: number;
-};
+export type AdminSession = { username: string; exp: number };
 
 export function createSessionToken(username: string): string {
     const exp = Date.now() + MAX_AGE_SEC * 1000;
@@ -32,12 +29,10 @@ export function createSessionToken(username: string): string {
 export function parseSessionToken(token: string): AdminSession | null {
     const [payload, sig] = token.split(".");
     if (!payload || !sig) return null;
-
     const expected = sign(payload);
     const a = Buffer.from(sig);
     const b = Buffer.from(expected);
     if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-
     try {
         const data = JSON.parse(
             Buffer.from(payload, "base64url").toString("utf8"),
@@ -74,8 +69,6 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
 export async function requireAdminSession(): Promise<AdminSession> {
     const session = await getAdminSession();
-    if (!session) {
-        throw new Error("UNAUTHORIZED");
-    }
+    if (!session) throw new Error("UNAUTHORIZED");
     return session;
 }

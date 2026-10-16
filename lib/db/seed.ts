@@ -5,6 +5,7 @@ import {
     specialties,
 } from "@/data/kiosk-data";
 import type { Exec } from "@/lib/db/connection";
+import { hashPassword } from "@/lib/admin/password";
 
 /** جدول‌هایی که با شناسه‌ی صریح پر می‌شوند و شمارنده‌ی شناسه‌شان باید جلو برود */
 const TABLES_WITH_SEEDED_IDS = [
@@ -13,6 +14,17 @@ const TABLES_WITH_SEEDED_IDS = [
     "doctor_schedules",
     "schedule_exceptions",
 ];
+
+export async function ensureAdminUser(exec: Exec): Promise<void> {
+    const adminRows = await exec("SELECT COUNT(*) AS n FROM admin_users");
+    if (Number(adminRows[0]?.n ?? 0) > 0) return;
+    const username = process.env.ADMIN_USERNAME ?? "admin";
+    const password = process.env.ADMIN_PASSWORD ?? "NovinDemo2026!";
+    await exec(
+        "INSERT INTO admin_users (username, password_hash) VALUES ($1, $2)",
+        [username, hashPassword(password)],
+    );
+}
 
 /**
  * فقط وقتی دیتابیس کاملاً خالی است، داده‌ی اولیه (تخصص‌ها، پزشکان و برنامه‌ها) را از
@@ -24,6 +36,16 @@ export async function seedIfEmpty(exec: Exec): Promise<void> {
     const rows = await exec("SELECT COUNT(*) AS n FROM specialties");
 
     if (Number(rows[0]?.n ?? 0) > 0) return;
+
+    try {
+        const rows = await exec("SELECT COUNT(*) AS n FROM kiosks");
+        if (Number(rows[0]?.n ?? 0) > 0) return;
+        await exec(
+            `INSERT INTO kiosks (code, name, ip_address, port, location_note, printer_status)
+       VALUES
+       ('K1', 'کیوسک ورودی', '192.168.1.21', 3000, 'لابی', 'unknown'),
+       ('K2', 'کیوسک طبقه اول', '192.168.1.22', 3000, 'نزدیک پذیرش', 'unknown')`,
+        );
 
     for (const item of specialties) {
         await exec(
@@ -92,6 +114,28 @@ export async function seedIfEmpty(exec: Exec): Promise<void> {
         await exec(
             `SELECT setval(pg_get_serial_sequence('${table}', 'id'),
                            COALESCE((SELECT MAX(id) FROM ${table}), 0) + 1, false)`,
+        );
+    }
+
+    // داخل seedIfEmpty، بعد از seed کاتالوگ:
+    const adminRows = await exec("SELECT COUNT(*) AS n FROM admin_users");
+    if (Number(adminRows[0]?.n ?? 0) === 0) {
+        const username = process.env.ADMIN_USERNAME ?? "admin";
+        const password = process.env.ADMIN_PASSWORD ?? "NovinDemo2026!";
+        await exec(
+            "INSERT INTO admin_users (username, password_hash) VALUES ($1, $2)",
+            [username, hashPassword(password)],
+        );
+    }
+
+// دو کیوسک نمونه فقط اگر جدول خالی باشد
+    const kioskRows = await exec("SELECT COUNT(*) AS n FROM kiosks");
+    if (Number(kioskRows[0]?.n ?? 0) === 0) {
+        await exec(
+            `INSERT INTO kiosks (code, name, ip_address, port, location_note, printer_status)
+     VALUES
+     ('K1', 'کیوسک ورودی', '192.168.1.21', 3000, 'لابی', 'unknown'),
+     ('K2', 'کیوسک طبقه اول', '192.168.1.22', 3000, 'نزدیک پذیرش', 'unknown')`,
         );
     }
 }
