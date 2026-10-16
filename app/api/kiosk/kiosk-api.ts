@@ -1,7 +1,7 @@
 import type {
     Doctor,
     SpecialtyWithAvailability,
-} from "../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/types/kiosk";
+} from "@/types/kiosk";
 
 type ApiResponse<T> = {
     success: boolean;

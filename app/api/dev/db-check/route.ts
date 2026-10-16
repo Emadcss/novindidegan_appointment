@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runDbSelfCheck } from "../../../../../../../Downloads/novindidegan_appointment-latest/novindidegan_appointment/lib/db/self-check";
+import { runDbSelfCheck } from "@/lib/db/self-check";
 
 /**
  * خودآزمایی دیتابیس (فقط در حالت توسعه).
