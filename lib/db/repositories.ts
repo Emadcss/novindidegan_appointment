@@ -288,3 +288,64 @@ export async function insertAppointment(input: {
 
     return toAppointment(rows[0] as Row);
 }
+
+
+export async function getAdminDashboardSummary() {
+    const [appointmentRows, specialtyRows, doctorRows, scheduleRows, recentRows] =
+        await Promise.all([
+            query(
+                `SELECT
+                    COUNT(*)::int AS total,
+                    COUNT(*) FILTER (WHERE status = 'booked')::int AS booked,
+                    COUNT(*) FILTER (WHERE status = 'completed')::int AS completed,
+                    COUNT(*) FILTER (WHERE status = 'cancelled')::int AS cancelled,
+                    COUNT(*) FILTER (WHERE status = 'no_show')::int AS no_show
+                 FROM appointments
+                 WHERE appointment_date =
+                    (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Tehran')::date`,
+            ),
+            query(
+                `SELECT
+                    COUNT(*)::int AS total,
+                    COUNT(*) FILTER (WHERE is_active)::int AS active
+                 FROM specialties`,
+            ),
+            query(
+                `SELECT
+                    COUNT(*)::int AS total,
+                    COUNT(*) FILTER (WHERE is_active)::int AS active
+                 FROM doctors`,
+            ),
+            query(
+                `SELECT COUNT(*)::int AS total
+                 FROM doctor_schedules
+                 WHERE is_active = TRUE`,
+            ),
+            query(
+                `SELECT
+                    a.id,
+                    a.appointment_date::text AS appointment_date,
+                    to_char(a.appointment_time, 'HH24:MI') AS appointment_time,
+                    a.appointment_number,
+                    a.status,
+                    s.name AS specialty_name,
+                    d.display_name AS doctor_name
+                 FROM appointments a
+                 JOIN specialties s ON s.id = a.specialty_id
+                 JOIN doctors d ON d.id = a.doctor_id
+                 WHERE a.appointment_date =
+                    (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Tehran')::date
+                 ORDER BY a.appointment_number ASC, a.id ASC
+                 LIMIT 10`,
+            ),
+        ]);
+
+    return {
+        appointments: appointmentRows[0],
+        specialties: specialtyRows[0],
+        doctors: doctorRows[0],
+        schedules: scheduleRows[0],
+        recentAppointments: recentRows,
+    };
+}
+
