@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 
 import { requireAdminApi, rejectCrossOrigin } from "@/lib/admin/api";
@@ -9,12 +10,15 @@ import {
 
 const WEEKDAYS = new Set([0, 1, 2, 3, 4, 5, 6]);
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const MAX_DATE = "9999-12-31";
 
 type ShiftInput = {
     weekday: number;
     startTime: string;
     endTime: string;
 };
+
+type RequestBody = Record<string, unknown>;
 
 function getTodayTehran(): string {
     const parts = new Intl.DateTimeFormat("en-US", {
@@ -55,7 +59,7 @@ function overlaps(a: ShiftInput, b: ShiftInput): boolean {
     );
 }
 
-function getWeekdayLabel(weekday: number): string {
+function weekdayLabel(weekday: number): string {
     const labels: Record<number, string> = {
         0: "یکشنبه",
         1: "دوشنبه",
@@ -69,9 +73,30 @@ function getWeekdayLabel(weekday: number): string {
     return labels[weekday] ?? "نامشخص";
 }
 
+function errorResponse(message: string, status: number) {
+    return NextResponse.json({ error: message }, { status });
+}
+
+async function readBody(request: Request): Promise<RequestBody | null> {
+    try {
+        const value: unknown = await request.json();
+
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+            return null;
+        }
+
+        return value as RequestBody;
+    } catch {
+        return null;
+    }
+}
+
+function getErrorMessage(error: unknown) {
+    return error instanceof Error ? error.message : "";
+}
+
 export async function GET() {
     const auth = await requireAdminApi();
-
     if (auth.response) return auth.response;
 
     try {
@@ -85,12 +110,13 @@ export async function GET() {
                     d.is_active,
                     s.name AS specialty_name
                 FROM doctors d
-                JOIN specialties s ON s.id = d.specialty_id
+                         JOIN specialties s ON s.id = d.specialty_id
                 ORDER BY
                     s.sort_order,
                     s.name,
                     d.sort_order,
-                    d.last_name
+                    d.last_name,
+                    d.first_name
             `),
 
             query(`
@@ -106,10 +132,11 @@ export async function GET() {
                     ds.valid_until::text AS valid_until,
                     ds.is_active
                 FROM doctor_schedules ds
-                JOIN doctors d ON d.id = ds.doctor_id
-                JOIN specialties s ON s.id = d.specialty_id
+                         JOIN doctors d ON d.id = ds.doctor_id
+                         JOIN specialties s ON s.id = d.specialty_id
                 ORDER BY
                     d.last_name,
+                    d.first_name,
                     ds.weekday,
                     ds.start_time,
                     ds.id
@@ -119,31 +146,21 @@ export async function GET() {
         return NextResponse.json({ doctors, schedules });
     } catch (error) {
         console.error("خطا در دریافت برنامه‌های پزشکان:", error);
-
-        return NextResponse.json(
-            { error: "دریافت برنامه‌های پزشکان انجام نشد." },
-            { status: 500 },
-        );
+        return errorResponse("دریافت برنامه‌های پزشکان انجام نشد.", 500);
     }
 }
 
 export async function POST(request: Request) {
     const auth = await requireAdminApi();
-
     if (auth.response) return auth.response;
 
     const originError = rejectCrossOrigin(request);
     if (originError) return originError;
 
-    let body: Record<string, unknown>;
+    const body = await readBody(request);
 
-    try {
-        body = await request.json();
-    } catch {
-        return NextResponse.json(
-            { error: "اطلاعات ارسالی معتبر نیست." },
-            { status: 400 },
-        );
+    if (!body) {
+        return errorResponse("اطلاعات ارسالی معتبر نیست.", 400);
     }
 
     const doctorId = Number(body.doctorId);
@@ -157,28 +174,21 @@ export async function POST(request: Request) {
         rawShifts.length > 42 ||
         !rawShifts.every(isShift)
     ) {
-        return NextResponse.json(
-            {
-                error:
-                    "پزشک و حداقل یک شیفت معتبر برای روزهای هفته لازم است.",
-            },
-            { status: 400 },
+        return errorResponse(
+            "پزشک و حداقل یک شیفت معتبر برای روزهای هفته لازم است.",
+            400,
         );
     }
 
     const shifts = rawShifts as ShiftInput[];
 
-    // بررسی تداخل بین شیفت‌های همین درخواست
+    // جلوگیری از تداخل میان شیفت‌های همین درخواست.
     for (let i = 0; i < shifts.length; i++) {
         for (let j = i + 1; j < shifts.length; j++) {
             if (overlaps(shifts[i], shifts[j])) {
-                return NextResponse.json(
-                    {
-                        error: `شیفت‌های روز ${getWeekdayLabel(
-                            shifts[i].weekday,
-                        )} با یکدیگر هم‌پوشانی دارند.`,
-                    },
-                    { status: 409 },
+                return errorResponse(
+                    `شیفت‌های روز ${weekdayLabel(shifts[i].weekday)} با یکدیگر هم‌پوشانی دارند.`,
+                    409,
                 );
             }
         }
@@ -186,7 +196,7 @@ export async function POST(request: Request) {
 
     try {
         const inserted = await withTransaction(async () => {
-            // درخواست‌های هم‌زمان برای یک پزشک پشت سر هم بررسی می‌شوند.
+            // ثبت و فعال‌سازی شیفت‌های یک پزشک با یک قفل هماهنگ می‌شوند.
             await advisoryLock(42, doctorId);
 
             const doctor = await query(
@@ -205,8 +215,6 @@ export async function POST(request: Request) {
 
             const today = getTodayTehran();
 
-            // بررسی تداخل با برنامه‌های قبلی فعال.
-            // برنامهٔ جدید از امروز به بعد معتبر است.
             for (const shift of shifts) {
                 const conflicts = await query(
                     `
@@ -215,18 +223,17 @@ export async function POST(request: Request) {
                         WHERE doctor_id = $1
                           AND weekday = $2
                           AND is_active = TRUE
-                          AND valid_from <= '9999-12-31'::date
-                          AND COALESCE(
-                                valid_until,
-                                '9999-12-31'::date
-                              ) >= $3::date
-                          AND (start_time, end_time)
-                              OVERLAPS ($4::time, $5::time)
-                        LIMIT 1
+                          AND valid_from <= $3::date
+              AND COALESCE(valid_until, $4::date) >= $5::date
+                          AND start_time < $7::time
+                          AND end_time > $6::time
+                            LIMIT 1
                     `,
                     [
                         doctorId,
                         shift.weekday,
+                        MAX_DATE,
+                        MAX_DATE,
                         today,
                         shift.startTime,
                         shift.endTime,
@@ -234,9 +241,7 @@ export async function POST(request: Request) {
                 );
 
                 if (conflicts.length > 0) {
-                    throw new Error(
-                        `SHIFT_CONFLICT:${shift.weekday}`,
-                    );
+                    throw new Error(`SHIFT_CONFLICT:${shift.weekday}`);
                 }
             }
 
@@ -254,24 +259,16 @@ export async function POST(request: Request) {
                             valid_until,
                             is_active
                         )
-                        VALUES (
-                            $1,
-                            $2,
-                            $3::time,
-                            $4::time,
-                            $5::date,
-                            NULL,
-                            TRUE
-                        )
-                        RETURNING
-                            id,
-                            doctor_id,
-                            weekday,
-                            TO_CHAR(start_time, 'HH24:MI') AS start_time,
-                            TO_CHAR(end_time, 'HH24:MI') AS end_time,
-                            valid_from::text AS valid_from,
-                            valid_until::text AS valid_until,
-                            is_active
+                        VALUES ($1, $2, $3::time, $4::time, $5::date, NULL, TRUE)
+                            RETURNING
+              id,
+              doctor_id,
+              weekday,
+              TO_CHAR(start_time, 'HH24:MI') AS start_time,
+              TO_CHAR(end_time, 'HH24:MI') AS end_time,
+              valid_from::text AS valid_from,
+              valid_until::text AS valid_until,
+              is_active
                     `,
                     [
                         doctorId,
@@ -288,103 +285,172 @@ export async function POST(request: Request) {
             return rows;
         });
 
-        return NextResponse.json(
-            { schedules: inserted },
-            { status: 201 },
-        );
+        return NextResponse.json({ schedules: inserted }, { status: 201 });
     } catch (error) {
-        const message =
-            error instanceof Error ? error.message : "";
+        const message = getErrorMessage(error);
 
         if (message === "DOCTOR_NOT_FOUND") {
-            return NextResponse.json(
-                {
-                    error:
-                        "پزشک انتخاب‌شده وجود ندارد یا غیرفعال است.",
-                },
-                { status: 404 },
+            return errorResponse(
+                "پزشک انتخاب‌شده وجود ندارد یا غیرفعال است.",
+                404,
             );
         }
 
         if (message.startsWith("SHIFT_CONFLICT:")) {
             const weekday = Number(message.split(":")[1]);
 
-            return NextResponse.json(
-                {
-                    error: `شیفت روز ${getWeekdayLabel(
-                        weekday,
-                    )} با برنامهٔ فعال قبلی پزشک هم‌پوشانی دارد. ابتدا برنامهٔ قبلی را غیرفعال کنید یا ساعت‌ها را تغییر دهید.`,
-                },
-                { status: 409 },
+            return errorResponse(
+                `شیفت روز ${weekdayLabel(weekday)} با برنامه فعال قبلی پزشک تداخل دارد. ابتدا برنامه قبلی را غیرفعال کنید یا ساعت را تغییر دهید.`,
+                409,
             );
         }
 
         console.error("خطا در ثبت برنامه هفتگی پزشک:", error);
-
-        return NextResponse.json(
-            { error: "ثبت برنامه هفتگی پزشک انجام نشد." },
-            { status: 500 },
-        );
+        return errorResponse("ثبت برنامه هفتگی پزشک انجام نشد.", 500);
     }
 }
 
 export async function PATCH(request: Request) {
     const auth = await requireAdminApi();
-
     if (auth.response) return auth.response;
 
     const originError = rejectCrossOrigin(request);
     if (originError) return originError;
 
-    let body: Record<string, unknown>;
+    const body = await readBody(request);
 
-    try {
-        body = await request.json();
-    } catch {
-        return NextResponse.json(
-            { error: "اطلاعات ارسالی معتبر نیست." },
-            { status: 400 },
-        );
+    if (!body) {
+        return errorResponse("اطلاعات ارسالی معتبر نیست.", 400);
     }
 
     const id = Number(body.id);
+    const isActive = body.isActive;
 
     if (
         !Number.isSafeInteger(id) ||
         id < 1 ||
-        typeof body.isActive !== "boolean"
+        typeof isActive !== "boolean"
     ) {
-        return NextResponse.json(
-            { error: "شناسه یا وضعیت برنامه معتبر نیست." },
-            { status: 400 },
-        );
+        return errorResponse("شناسه یا وضعیت برنامه معتبر نیست.", 400);
     }
 
     try {
-        const updated = await query(
-            `
-                UPDATE doctor_schedules
-                SET is_active = $2
-                WHERE id = $1
-                RETURNING id, is_active
-            `,
-            [id, body.isActive],
-        );
+        const updated = await withTransaction(async () => {
+            // ابتدا فقط شناسه پزشک را پیدا می‌کنیم تا قفل پزشک را بگیریم.
+            const initial = await query(
+                `
+                    SELECT doctor_id
+                    FROM doctor_schedules
+                    WHERE id = $1
+                `,
+                [id],
+            );
 
-        if (updated.length === 0) {
-            return NextResponse.json(
-                { error: "برنامه موردنظر پیدا نشد." },
-                { status: 404 },
+            if (initial.length === 0) {
+                throw new Error("SCHEDULE_NOT_FOUND");
+            }
+
+            const doctorId = Number(initial[0].doctor_id);
+
+            await advisoryLock(42, doctorId);
+
+            // پس از گرفتن قفل، رکورد را دوباره می‌خوانیم.
+            const targetRows = await query(
+                `
+                    SELECT
+                        id,
+                        doctor_id,
+                        weekday,
+                        start_time,
+                        end_time,
+                        valid_from,
+                        valid_until,
+                        is_active
+                    FROM doctor_schedules
+                    WHERE id = $1
+                        FOR UPDATE
+                `,
+                [id],
+            );
+
+            if (targetRows.length === 0) {
+                throw new Error("SCHEDULE_NOT_FOUND");
+            }
+
+            const target = targetRows[0];
+
+            const targetWeekday = Number(target.weekday);
+            const targetStartTime = String(target.start_time);
+            const targetEndTime = String(target.end_time);
+            const targetValidFrom = String(target.valid_from);
+            const targetValidUntil =
+                target.valid_until == null ? null : String(target.valid_until);
+
+            if (isActive && !target.is_active) {
+
+                const conflicts = await query(
+                    `
+                        SELECT id
+                        FROM doctor_schedules other
+                        WHERE other.doctor_id = $1
+                          AND other.id <> $2
+                          AND other.weekday = $3
+                          AND other.is_active = TRUE
+                          AND other.valid_from <= COALESCE($5::date, $6::date)
+                          AND COALESCE(other.valid_until, $6::date) >= $4::date
+      AND other.start_time < $8::time
+                          AND other.end_time > $7::time
+                            LIMIT 1
+                    `,
+                    [
+                        doctorId,
+                        id,
+                        targetWeekday,
+                        targetValidFrom,
+                        targetValidUntil,
+                        MAX_DATE,
+                        targetStartTime,
+                        targetEndTime,
+                    ],
+                );
+
+
+                if (conflicts.length > 0) {
+                    throw new Error(`SHIFT_CONFLICT:${target.weekday}`);
+                }
+            }
+
+            const result = await query(
+                `
+                    UPDATE doctor_schedules
+                    SET is_active = $2
+                    WHERE id = $1
+                        RETURNING id, doctor_id, is_active
+                `,
+                [id, isActive],
+            );
+
+            return result[0];
+        });
+
+        return NextResponse.json({ schedule: updated });
+    } catch (error) {
+        const message = getErrorMessage(error);
+
+        if (message === "SCHEDULE_NOT_FOUND") {
+            return errorResponse("برنامه موردنظر پیدا نشد.", 404);
+        }
+
+        if (message.startsWith("SHIFT_CONFLICT:")) {
+            const weekday = Number(message.split(":")[1]);
+
+            return errorResponse(
+                `این شیفت در روز ${weekdayLabel(weekday)} با شیفت فعال دیگری تداخل دارد و نمی‌توان آن را فعال کرد.`,
+                409,
             );
         }
 
-        return NextResponse.json({ schedule: updated[0] });
-    } catch (error) {
         console.error("خطا در تغییر وضعیت برنامه:", error);
-
-        return NextResponse.json(
-            { error: "تغییر وضعیت برنامه انجام نشد." },
-            { status: 500 },
-        );
+        return errorResponse("تغییر وضعیت برنامه انجام نشد.", 500);
     }
 }
