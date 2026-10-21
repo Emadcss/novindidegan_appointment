@@ -183,6 +183,15 @@ const MIGRATIONS: string[] = [
     ALTER TABLE appointments ADD COLUMN kiosk_id INTEGER REFERENCES kiosks(id);
     CREATE INDEX idx_appointments_date ON appointments (appointment_date);
     `,
+    // نسخه ۲ در نسخه‌ای از پروژه منتشر شده؛ برای حفظ ترتیب، شماره‌اش رزرو می‌ماند.
+    "SELECT 1",
+    // نسخه ۳: بعضی دیتابیس‌های نسخه ۲ ستون کیوسک را نداشتند.
+    `
+    ALTER TABLE appointments
+        ADD COLUMN IF NOT EXISTS kiosk_id INTEGER REFERENCES kiosks(id);
+    CREATE INDEX IF NOT EXISTS idx_appointments_date
+        ON appointments (appointment_date);
+    `,
 ];
 
 /** آخرین نسخه‌ی ساختار (برای خودآزمایی) */

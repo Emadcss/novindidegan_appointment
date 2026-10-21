@@ -70,31 +70,31 @@ export default function AppointmentResult({
     ];
 
     return (
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-4">
+        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-4 py-2">
             <div className="w-full overflow-hidden rounded-card bg-surface shadow-card">
-                <div className="flex items-center gap-3 bg-success px-8 py-4 text-title font-bold text-white">
-                    <CheckIcon className="size-8" />
+                <div className="flex items-center gap-2 bg-success px-4 py-3 text-lg font-bold text-white sm:gap-3 sm:px-8 sm:py-4 sm:text-title">
+                    <CheckIcon className="size-6 sm:size-8" />
                     نوبت شما ثبت شد
                 </div>
 
                 <div className="grid items-center md:grid-cols-[1fr_1.2fr]">
                     {/* شماره‌ی نوبت */}
-                    <div className="px-8 py-6 text-center md:border-l-2 md:border-dashed md:border-line">
-                        <p className="text-body text-ink-muted">شماره نوبت شما</p>
+                    <div className="px-4 py-4 text-center sm:px-8 sm:py-6 md:border-l-2 md:border-dashed md:border-line">
+                        <p className="text-base text-ink-muted sm:text-body">شماره نوبت شما</p>
 
                         {appointmentNumber != null && (
-                            <p className="text-ticket short:text-8xl font-bold tabular-nums text-brand">
+                            <p className="break-words text-6xl font-bold tabular-nums text-brand sm:text-ticket short:sm:text-8xl">
                                 {toPersianDigits(appointmentNumber)}
                             </p>
                         )}
                     </div>
 
                     {/* جزئیات */}
-                    <dl className="grid gap-3 px-8 py-6 text-body">
+                    <dl className="grid gap-2 px-4 py-4 text-base sm:gap-3 sm:px-8 sm:py-6 sm:text-body">
                         {rows
                             .filter((row) => row.value)
                             .map((row) => (
-                                <div key={row.label} className="flex items-center justify-between gap-6">
+                                <div key={row.label} className="flex items-start justify-between gap-3 sm:gap-6">
                                     <dt className="text-ink-muted">{row.label}</dt>
                                     <dd className="font-bold text-ink">{row.value}</dd>
                                 </div>
@@ -102,7 +102,7 @@ export default function AppointmentResult({
                     </dl>
                 </div>
 
-                <p className="bg-brand-soft px-8 py-4 text-center text-body font-bold text-brand">
+                <p className="bg-brand-soft px-4 py-3 text-center text-sm font-bold text-brand sm:px-8 sm:py-4 sm:text-body">
                     برای تکمیل پذیرش، به باجه‌ی پذیرش مراجعه کنید.
                 </p>
             </div>

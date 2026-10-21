@@ -20,13 +20,13 @@ export default function DigitField({ value, length, groups, status, label }: Dig
             aria-readonly="true"
             aria-label={label}
             dir="ltr"
-            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3"
+            className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:gap-x-5 sm:gap-y-3"
         >
             {groups.map((size, groupIndex) => {
                 const start = groups.slice(0, groupIndex).reduce((sum, n) => sum + n, 0);
 
                 return (
-                    <div key={groupIndex} className="flex gap-2">
+                    <div key={groupIndex} className="flex gap-1 sm:gap-2">
                         {Array.from({ length: size }, (_, i) => {
                             const index = start + i;
                             const char = value[index];
@@ -41,7 +41,7 @@ export default function DigitField({ value, length, groups, status, label }: Dig
                             return (
                                 <span
                                     key={index}
-                                    className={`flex h-16 w-12 items-center justify-center rounded-control border-2 text-3xl font-bold tabular-nums ${tone}`}
+                                    className={`flex h-11 w-7 items-center justify-center rounded-lg border-2 text-xl font-bold tabular-nums sm:h-16 sm:w-12 sm:rounded-control sm:text-3xl ${tone}`}
                                 >
                                     {char ? toPersianDigits(char) : ""}
                                 </span>

@@ -6,26 +6,29 @@ import { authorizeKiosk } from "@/lib/kiosk/kiosk-auth";
 import { getServerNow } from "@/lib/time/server-clock";
 
 export async function GET(request: NextRequest) {
-    try {
-        await authorizeKiosk(request);
+  try {
+    await authorizeKiosk(request);
 
-        const specialtyId = request.nextUrl.searchParams.get("specialtyId");
+    const specialtyId = request.nextUrl.searchParams.get("specialtyId");
 
-        if (!specialtyId) {
-            throw new KioskError("VALIDATION", "شناسه تخصص ارسال نشده است");
-        }
-
-        const parsedSpecialtyId = Number(specialtyId);
-
-        if (!Number.isInteger(parsedSpecialtyId) || parsedSpecialtyId <= 0) {
-            throw new KioskError("VALIDATION", "شناسه تخصص نامعتبر است");
-        }
-
-        return NextResponse.json({
-            success: true,
-            data: await getAvailableDoctorsForSpecialty(parsedSpecialtyId, getServerNow()),
-        });
-    } catch (error) {
-        return errorResponse(error, "GET /api/kiosk/doctors error:");
+    if (!specialtyId) {
+      throw new KioskError("VALIDATION", "شناسه تخصص ارسال نشده است");
     }
+
+    const parsedSpecialtyId = Number(specialtyId);
+
+    if (!Number.isInteger(parsedSpecialtyId) || parsedSpecialtyId <= 0) {
+      throw new KioskError("VALIDATION", "شناسه تخصص نامعتبر است");
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: await getAvailableDoctorsForSpecialty(
+        parsedSpecialtyId,
+        getServerNow(),
+      ),
+    });
+  } catch (error) {
+    return errorResponse(error, "GET /api/kiosk/doctors error:");
+  }
 }

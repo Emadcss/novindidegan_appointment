@@ -100,22 +100,53 @@ export default function DigitEntryForm({
 
     return (
         <Screen title={title} onBack={onBack} onCancel={onCancel} navDisabled={loading}>
-            <div className="grid flex-1 items-center gap-10 lg:grid-cols-[1fr_22rem]">
-                <div className="flex flex-col items-center gap-5 short:gap-3">
-                    <p className="text-body text-ink-muted">{hint}</p>
+            <div className="grid flex-1 content-start items-center gap-5 sm:gap-10 lg:grid-cols-[1fr_22rem]">
+                <div className="flex flex-col items-center gap-3 sm:gap-5 short:sm:gap-3">
+                    <p className="text-center text-base text-ink-muted sm:text-body">{hint}</p>
 
-                    <DigitField
-                        value={digits}
-                        length={length}
-                        groups={groups}
-                        label={fieldLabel}
-                        status={isValid ? "valid" : isInvalidComplete ? "invalid" : "idle"}
+                    <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        enterKeyHint="go"
+                        autoComplete="off"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        dir="ltr"
+                        aria-label={fieldLabel}
+                        value={toPersianDigits(digits)}
+                        maxLength={length}
+                        disabled={loading}
+                        onChange={(event) => handleChange(event.target.value)}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                                event.preventDefault();
+                                handleSubmit();
+                            }
+                        }}
+                        className={`w-full max-w-sm rounded-control border-2 bg-surface px-3 py-3 text-center text-xl font-bold tracking-[0.25em] tabular-nums outline-none disabled:opacity-60 sm:hidden ${
+                            isValid
+                                ? "border-success bg-success-soft text-success"
+                                : isInvalidComplete
+                                    ? "border-danger bg-danger-soft text-danger"
+                                    : "border-line-strong text-ink focus:border-brand"
+                        }`}
                     />
+
+                    <div className="hidden sm:block">
+                        <DigitField
+                            value={digits}
+                            length={length}
+                            groups={groups}
+                            label={fieldLabel}
+                            status={isValid ? "valid" : isInvalidComplete ? "invalid" : "idle"}
+                        />
+                    </div>
 
                     <p
                         role="status"
                         aria-live="polite"
-                        className={`flex min-h-10 items-center gap-2 text-body font-bold ${message.tone}`}
+                        className={`flex min-h-8 items-center gap-2 text-base font-bold sm:min-h-10 sm:text-body ${message.tone}`}
                     >
                         {message.icon}
                         {message.text}
@@ -131,13 +162,15 @@ export default function DigitEntryForm({
                     )}
                 </div>
 
-                <div className="mx-auto flex w-full max-w-sm flex-col gap-4 short:gap-3">
-                    <NumericKeypad
-                        value={digits}
-                        onChange={handleChange}
-                        maxLength={length}
-                        disabled={loading}
-                    />
+                <div className="mx-auto flex w-full max-w-sm flex-col gap-3 sm:gap-4 short:sm:gap-3">
+                    <div className="hidden sm:block">
+                        <NumericKeypad
+                            value={digits}
+                            onChange={handleChange}
+                            maxLength={length}
+                            disabled={loading}
+                        />
+                    </div>
 
                     <Button
                         size="lg"

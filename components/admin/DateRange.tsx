@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Btn, Input } from "@/components/admin/ui";
 import { addDays, formatJalali, parseJalaliInput, startOfJalaliMonth } from "@/lib/utils/jalali";
@@ -15,17 +15,20 @@ export function DateRange({ value, onChange }: { value: Range; onChange: (range:
     const [from, setFrom] = useState(formatJalali(value.from));
     const [to, setTo] = useState(formatJalali(value.to));
 
-    useEffect(() => {
-        setFrom(formatJalali(value.from));
-        setTo(formatJalali(value.to));
-    }, [value.from, value.to]);
-
     const fromIso = parseJalaliInput(from);
     const toIso = parseJalaliInput(to);
     const valid = fromIso !== null && toIso !== null && fromIso <= toIso;
 
+    function applyRange(range: Range) {
+        setFrom(formatJalali(range.from));
+        setTo(formatJalali(range.to));
+        onChange(range);
+    }
+
     function commit() {
-        if (valid) onChange({ from: fromIso as string, to: toIso as string });
+        if (valid && fromIso !== null && toIso !== null) {
+            applyRange({ from: fromIso, to: toIso });
+        }
     }
 
     const today = todayKey();
@@ -65,7 +68,7 @@ export function DateRange({ value, onChange }: { value: Range; onChange: (range:
             </label>
             <div className="flex flex-wrap gap-1.5">
                 {presets.map(([label, range]) => (
-                    <Btn key={label} small variant="ghost" onClick={() => onChange(range)}>
+                    <Btn key={label} small variant="ghost" onClick={() => applyRange(range)}>
                         {label}
                     </Btn>
                 ))}

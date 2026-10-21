@@ -24,7 +24,7 @@ export default function KioskNavigation({
     disabled = false,
 }: KioskNavigationProps) {
     return (
-        <nav aria-label="پیمایش" className="flex items-center justify-between gap-4 pt-8 short:pt-3">
+        <nav aria-label="پیمایش" className="sticky bottom-0 z-20 -mx-4 mt-4 flex items-center justify-between gap-3 bg-paper/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:static sm:mx-0 sm:mt-0 sm:gap-4 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-8 short:sm:pt-3">
             <Button
                 variant="secondary"
                 icon={<ChevronRightIcon className="size-7" />}

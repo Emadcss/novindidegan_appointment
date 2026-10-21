@@ -13,7 +13,7 @@ type NumericKeypadProps = {
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
 const KEY_BASE =
-    "flex h-20 short:h-14 touch-manipulation items-center justify-center rounded-control border-2 " +
+    "flex h-14 touch-manipulation items-center justify-center rounded-control border-2 sm:h-20 short:sm:h-14 " +
     "transition-[transform,background-color] duration-100 active:scale-95 active:bg-brand-soft " +
     "disabled:opacity-40 disabled:active:scale-100";
 
@@ -37,14 +37,14 @@ export default function NumericKeypad({
     }
 
     return (
-        <div dir="ltr" className="grid w-full grid-cols-3 gap-3 short:gap-2">
+        <div dir="ltr" className="mx-auto grid w-full max-w-sm grid-cols-3 gap-2 sm:gap-3 short:sm:gap-2">
             {DIGITS.map((digit) => (
                 <button
                     key={digit}
                     type="button"
                     disabled={disabled || isFull}
                     onClick={() => press(digit)}
-                    className={`${KEY_BASE} border-line bg-surface text-4xl short:text-3xl font-bold tabular-nums text-ink shadow-card`}
+                    className={`${KEY_BASE} border-line bg-surface text-3xl font-bold tabular-nums text-ink shadow-card sm:text-4xl short:sm:text-3xl`}
                 >
                     {toPersianDigits(digit)}
                 </button>
@@ -54,7 +54,7 @@ export default function NumericKeypad({
                 type="button"
                 disabled={disabled || isEmpty}
                 onClick={() => onChange("")}
-                className={`${KEY_BASE} border-transparent bg-transparent text-hint font-bold text-ink-muted`}
+                className={`${KEY_BASE} border-transparent bg-transparent text-sm font-bold text-ink-muted sm:text-hint`}
             >
                 پاک کردن
             </button>
@@ -63,7 +63,7 @@ export default function NumericKeypad({
                 type="button"
                 disabled={disabled || isFull}
                 onClick={() => press("0")}
-                className={`${KEY_BASE} border-line bg-surface text-4xl short:text-3xl font-bold tabular-nums text-ink shadow-card`}
+                className={`${KEY_BASE} border-line bg-surface text-3xl font-bold tabular-nums text-ink shadow-card sm:text-4xl short:sm:text-3xl`}
             >
                 {toPersianDigits("0")}
             </button>
@@ -75,7 +75,7 @@ export default function NumericKeypad({
                 onClick={() => onChange(value.slice(0, -1))}
                 className={`${KEY_BASE} border-line-strong bg-surface text-ink`}
             >
-                <BackspaceIcon className="size-8" />
+                <BackspaceIcon className="size-6 sm:size-8" />
             </button>
         </div>
     );

@@ -53,37 +53,37 @@ export default function Header({ compact = false }: HeaderProps) {
 
   return (
     <header
-      className={`flex w-full items-center justify-between gap-6 px-8 short:px-6 ${
-        compact ? "py-2 short:py-1" : "py-4"
+      className={`flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 short:px-6 sm:flex-nowrap sm:gap-6 sm:px-8 ${
+        compact ? "py-2 short:py-1" : "py-3 sm:py-4"
       }`}
     >
       {/* هویت مرکز: گوشه‌ی راست */}
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
         <Image
           src="/novindidegan.png"
           alt="لوگوی کلینیک فوق تخصصی نوین دیدگان"
           width={96}
           height={96}
           priority
-          className={compact ? "size-16 short:size-14" : "size-24"}
+          className={compact ? "size-12 short:size-11 sm:size-16 sm:short:size-14" : "size-12 sm:size-24"}
         />
 
         <div className="flex flex-col leading-tight text-brand">
-          <span className={`font-logo ${compact ? "text-body short:text-hint" : "text-title"}`}>
+          <span className={`font-logo text-xs sm:text-base ${compact ? "sm:text-body short:sm:text-hint" : "sm:text-title"}`}>
             کلینیک فوق تخصصی
           </span>
-          <span className={`font-logo ${compact ? "text-heading short:text-title" : "text-display"}`}>
+          <span className={`font-logo text-lg sm:text-2xl ${compact ? "sm:text-heading short:sm:text-title" : "sm:text-display"}`}>
             نوین دیدگان
           </span>
         </div>
       </div>
 
       {/* ساعت و وضعیت ارتباط: گوشه‌ی چپ */}
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
         {syncFailed && (
           <p
             role="status"
-            className="rounded-full bg-warning-soft px-5 py-2 text-hint font-bold text-warning"
+            className="rounded-full bg-warning-soft px-3 py-1 text-xs font-bold text-warning sm:px-5 sm:py-2 sm:text-hint"
           >
             ارتباط با سرور برقرار نیست
           </p>
@@ -91,10 +91,10 @@ export default function Header({ compact = false }: HeaderProps) {
 
         {now && (
           <div className="flex flex-col items-end leading-tight">
-            <span dir="ltr" className="text-heading short:text-title font-bold tabular-nums text-ink">
+            <span dir="ltr" className="text-base font-bold tabular-nums text-ink sm:text-heading short:sm:text-title">
               {toPersianDigits(formatPersianTimeWithSeconds(now))}
             </span>
-            <span className="text-hint text-ink-muted">{formatPersianDateFull(now)}</span>
+            <span className="text-[0.65rem] text-ink-muted sm:text-hint">{formatPersianDateFull(now)}</span>
           </div>
         )}
       </div>

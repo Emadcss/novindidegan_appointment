@@ -90,7 +90,7 @@ export default function DoctorSelection({
             )}
 
             {!loading && !failed && doctors.length > 0 && (
-                <div className="grid grid-cols-2 gap-5 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
                     {doctors.map((doctor) => (
                         <ChoiceCard
                             key={doctor.id}

@@ -33,19 +33,19 @@ export default function IdleWarning({ seconds, onContinue, onCancel }: IdleWarni
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="idle-title"
-            className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-4 sm:p-6"
         >
-            <div className="w-full max-w-2xl rounded-card bg-surface p-10 text-center shadow-card">
-                <h2 id="idle-title" className="text-heading font-bold text-ink">
+            <div className="w-full max-w-2xl rounded-card bg-surface p-5 text-center shadow-card sm:p-10">
+                <h2 id="idle-title" className="text-2xl font-bold text-ink sm:text-heading">
                     هنوز اینجا هستید؟
                 </h2>
 
-                <p className="mt-4 text-body text-ink-muted">
+                <p className="mt-3 text-base text-ink-muted sm:mt-4 sm:text-body">
                     اگر کاری انجام ندهید، {toPersianDigits(remaining)} ثانیه‌ی دیگر به صفحه‌ی اول
                     برمی‌گردید و اطلاعات واردشده پاک می‌شود.
                 </p>
 
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+                <div className="mt-5 flex flex-col items-stretch justify-center gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
                     <Button size="lg" onClick={onContinue}>
                         ادامه می‌دهم
                     </Button>

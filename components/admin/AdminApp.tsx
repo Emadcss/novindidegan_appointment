@@ -7,6 +7,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import type { FormEvent } from "react";
 
@@ -77,27 +78,17 @@ const PAGES: { key: PageKey; label: string; adminOnly?: boolean }[] = [
 ];
 
 function useHashPage(): [PageKey, (page: PageKey) => void] {
-  const read = (): PageKey => {
-    const key = window.location.hash.replace(/^#\/?/, "") as PageKey;
-    return PAGES.some((page) => page.key === key) ? key : "dashboard";
-  };
-  const [page, setPage] = useState<PageKey>(() => {
-    if (typeof window === "undefined") {
-      return "dashboard";
-    }
-
-    return read();
-  });
-
-  useEffect(() => {
-    const onChange = () => setPage(read());
-
-    window.addEventListener("hashchange", onChange);
-
-    return () => {
-      window.removeEventListener("hashchange", onChange);
-    };
-  }, []);
+  const page = useSyncExternalStore<PageKey>(
+    (callback) => {
+      window.addEventListener("hashchange", callback);
+      return () => window.removeEventListener("hashchange", callback);
+    },
+    () => {
+      const key = window.location.hash.replace(/^#\/?/, "") as PageKey;
+      return PAGES.some((item) => item.key === key) ? key : "dashboard";
+    },
+    (): PageKey => "dashboard",
+  );
 
   return [page, (next) => (window.location.hash = `/${next}`)];
 }
