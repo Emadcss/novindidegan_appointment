@@ -16,11 +16,11 @@ type KioskLayoutProps = {
 
 /** قاب ثابت کیوسک: پس‌زمینه، هدر در گوشه‌ها، نوار مراحل و محتوای مرحله */
 export default function KioskLayout({
-                                        compact,
-                                        progress,
-                                        overlay,
-                                        children,
-                                    }: KioskLayoutProps) {
+    compact,
+    progress,
+    overlay,
+    children,
+}: KioskLayoutProps) {
     return (
         <main
             className="relative min-h-dvh text-ink"

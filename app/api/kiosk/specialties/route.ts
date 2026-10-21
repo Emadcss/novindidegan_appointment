@@ -1,27 +1,20 @@
-import {NextResponse} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 import {
     getAvailableSpecialtiesForDate,
 } from "@/lib/kiosk/kiosk-service";
+import { errorResponse } from "@/lib/kiosk/http";
+import {authorizeKiosk} from "@/lib/kiosk/kiosk-auth";
 import { getServerNow } from "@/lib/time/server-clock";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
-        const specialties =
-            await getAvailableSpecialtiesForDate(getServerNow());
+        await authorizeKiosk(request);
 
         return NextResponse.json({
             success: true,
-            data: specialties,
+            data: await getAvailableSpecialtiesForDate(getServerNow()),
         });
     } catch (error) {
-        console.error("GET /api/kiosk/specialties error:", error);
-
-        return NextResponse.json(
-            {
-                success: false,
-                message: "خطا در دریافت تخصص ها",
-            },
-            { status: 500 }
-        );
+        return errorResponse(error, "GET /api/kiosk/specialties error:");
     }
 }

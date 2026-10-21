@@ -3,7 +3,8 @@ export type KioskErrorCode =
     | "NOT_FOUND"
     | "OUT_OF_SCHEDULE"
     | "DUPLICATE"
-    | "LIMIT";
+    | "LIMIT"
+    | "UNPAIRED";
 
 const STATUS_BY_CODE: Record<KioskErrorCode, number> = {
     VALIDATION: 400,
@@ -11,6 +12,7 @@ const STATUS_BY_CODE: Record<KioskErrorCode, number> = {
     OUT_OF_SCHEDULE: 409,
     DUPLICATE: 409,
     LIMIT: 409,
+    UNPAIRED: 401,
 };
 
 /**

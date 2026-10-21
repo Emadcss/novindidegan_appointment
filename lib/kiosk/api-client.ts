@@ -28,17 +28,17 @@ export async function createAppointmentApi(
 ): Promise<CreateAppointmentApiResponse> {
     try {
         const res = await fetch("/api/kiosk/appointments", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(input),
-        });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+    });
 
-        const json = (await res.json()) as CreateAppointmentApiResponse;
-        return json;
-    } catch {
-        return {
-            success: false,
-            message: "ارتباط با سرور برقرار نشد"
+    const json = (await res.json()) as CreateAppointmentApiResponse;
+    return json;
+} catch {
+    return {
+        success: false,
+        message: "ارتباط با سرور برقرار نشد"
         };
     }
 }

@@ -98,6 +98,8 @@ export type Appointment = {
     status: AppointmentStatus;
     /** شناسه‌ی یکتای درخواست ثبت (برای جلوگیری از ثبت تکراری) */
     requestId?: string | null;
+    /** کیوسکی که نوبت را ثبت کرده (اگر جفتشده باشد) */
+    kioskId?: number | null;
     createdAt: string;
 };
 

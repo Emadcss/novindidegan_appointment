@@ -17,12 +17,12 @@ type KioskNavigationProps = {
  * «انصراف» عمدتاً کم‌رنگ است تا با عمل اصلی اشتباه گرفته نشود.
  */
 export default function KioskNavigation({
-                                            onBack,
-                                            onCancel,
-                                            backLabel = "بازگشت",
-                                            cancelLabel = "انصراف",
-                                            disabled = false,
-                                        }: KioskNavigationProps) {
+    onBack,
+    onCancel,
+    backLabel = "بازگشت",
+    cancelLabel = "انصراف",
+    disabled = false,
+}: KioskNavigationProps) {
     return (
         <nav aria-label="پیمایش" className="flex items-center justify-between gap-4 pt-8 short:pt-3">
             <Button

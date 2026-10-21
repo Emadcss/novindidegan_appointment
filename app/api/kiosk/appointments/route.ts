@@ -3,6 +3,7 @@ import { createAppointment } from "@/lib/kiosk/appointment-service";
 import { KioskError } from "@/lib/kiosk/errors";
 import { errorResponse, readJsonObject } from "@/lib/kiosk/http";
 import { parseIdentity } from "@/lib/kiosk/identity";
+import { authorizeKiosk } from "@/lib/kiosk/kiosk-auth";
 
 function parseId(value: unknown, label: string): number {
     const id = Number(value);
@@ -16,6 +17,9 @@ function parseId(value: unknown, label: string): number {
 
 export async function POST(request: NextRequest) {
     try {
+        //کیوسک جفت شده اگر باشد روی نوبت ثبت میشود تا در گزارش به تفکیک کیوسک بیاید
+        const kiosk = await authorizeKiosk(request);
+
         const body = await readJsonObject(request);
 
         const identity = parseIdentity(body);
@@ -41,6 +45,7 @@ export async function POST(request: NextRequest) {
             ...identity,
             hasSurgeryHistory,
             requestId,
+            kioskId: kiosk?.id ?? null,
         });
 
         return NextResponse.json({

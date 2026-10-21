@@ -17,11 +17,11 @@ type PreviousAppointmentSelectionProps = {
  * شماره‌ی هر نوبت داخل دایره است.
  */
 export default function PreviousAppointmentSelection({
-                                                         appointments,
-                                                         onSelect,
-                                                         onBack,
-                                                         onCancel,
-                                                     }: PreviousAppointmentSelectionProps) {
+    appointments,
+    onSelect,
+    onBack,
+    onCancel,
+}: PreviousAppointmentSelectionProps) {
     return (
         <Screen
             title={`شما امروز ${toPersianDigits(appointments.length)} نوبت دارید`}

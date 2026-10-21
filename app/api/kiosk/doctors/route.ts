@@ -1,66 +1,31 @@
-import { NextRequest, NextResponse} from "next/server";
-import  {
-    getAvailableDoctorsForSpecialty
-} from "@/lib/kiosk/kiosk-service";
+import { NextRequest, NextResponse } from "next/server";
+import { getAvailableDoctorsForSpecialty } from "@/lib/kiosk/kiosk-service";
+import { KioskError } from "@/lib/kiosk/errors";
+import { errorResponse } from "@/lib/kiosk/http";
+import { authorizeKiosk } from "@/lib/kiosk/kiosk-auth";
 import { getServerNow } from "@/lib/time/server-clock";
 
-export async function GET(
-    request: NextRequest
-) {
+export async function GET(request: NextRequest) {
     try {
-        const specialtyId =
-            request.nextUrl.searchParams.get(
-                "specialtyId"
-            );
+        await authorizeKiosk(request);
+
+        const specialtyId = request.nextUrl.searchParams.get("specialtyId");
 
         if (!specialtyId) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "شناسه تخصص ارسال نشده است",
-                },
-                { status: 400 }
-            );
+            throw new KioskError("VALIDATION", "شناسه تخصص ارسال نشده است");
         }
 
-        const parsedSpecialtyId =
-            Number(specialtyId);
+        const parsedSpecialtyId = Number(specialtyId);
 
-        if (
-            !Number.isInteger(parsedSpecialtyId) ||
-            parsedSpecialtyId <= 0
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "شناسه تخصص نامعتبر است"
-                },
-                { status: 400 }
-            );
+        if (!Number.isInteger(parsedSpecialtyId) || parsedSpecialtyId <= 0) {
+            throw new KioskError("VALIDATION", "شناسه تخصص نامعتبر است");
         }
-
-        const doctors =
-            await getAvailableDoctorsForSpecialty(
-                parsedSpecialtyId,
-                getServerNow()
-            );
 
         return NextResponse.json({
             success: true,
-            data: doctors,
+            data: await getAvailableDoctorsForSpecialty(parsedSpecialtyId, getServerNow()),
         });
     } catch (error) {
-        console.error(
-            "GET /api/kiosk/doctors error:",
-            error
-        );
-
-        return NextResponse.json(
-            {
-                success: false,
-                message: "خطا در دریافت پزشکان",
-            },
-            { status: 500 }
-        );
+        return errorResponse(error, "GET /api/kiosk/doctors error:");
     }
 }

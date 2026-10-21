@@ -11,10 +11,10 @@ type PreviousAppointmentNotFoundProps = {
 };
 
 export default function PreviousAppointmentNotFound({
-                                                        onBack,
-                                                        onCancel,
-                                                        onNewAppointment,
-                                                    }: PreviousAppointmentNotFoundProps) {
+    onBack,
+    onCancel,
+    onNewAppointment,
+}: PreviousAppointmentNotFoundProps) {
     return (
         <Screen title="جستجوی نوبت قبلی" onBack={onBack} onCancel={onCancel}>
             <StatusPanel

@@ -43,6 +43,8 @@ export type CreateAppointmentInput = {
     mobile: string | null;
     hasSurgeryHistory?: boolean | null;
     requestId?: string | null;
+    /** کیوسک جفت شده ای که درخواست از آن آمده (برای گزارش) */
+    kioskId?: number | null;
 };
 
 /**
@@ -75,6 +77,7 @@ export async function createAppointment(
         mobile,
         hasSurgeryHistory = null,
         requestId = null,
+        kioskId = null,
     } = input;
 
     if (!nationalId && !mobile) {
@@ -156,6 +159,7 @@ export async function createAppointment(
             // پاسخ فقط برای پزشکی که سؤال جراحی دارد ذخیره می‌شود
             hasSurgeryHistory: doctor.requiresSurgeryHistory ? hasSurgeryHistory : null,
             requestId,
+            kioskId,
         });
     });
 }

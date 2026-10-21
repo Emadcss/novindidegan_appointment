@@ -30,12 +30,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-      <html
-          lang="fa"
-          dir="rtl"
-          className={`${mikhak.variable} ${logoFont.variable}`}
-      >
+    <html
+      lang="fa"
+      dir="rtl"
+      className={`${mikhak.variable} ${logoFont.variable}`}
+    >
       <body className="flex min-h-full flex-col font-sans">{children}</body>
-      </html>
+    </html>
   );
 }

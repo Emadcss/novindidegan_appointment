@@ -19,12 +19,12 @@ type UseIdleTimeoutOptions = {
  * ادامه می‌دهد (تا لمس بستن به دکمه‌ی زیرین نشت نکند).
  */
 export function useIdleTimeout({
-                                   active,
-                                   resetKey,
-                                   onTimeout,
-                                   timeoutMs,
-                                   warnBeforeMs,
-                               }: UseIdleTimeoutOptions) {
+    active,
+    resetKey,
+    onTimeout,
+    timeoutMs,
+    warnBeforeMs,
+}: UseIdleTimeoutOptions) {
     const [warning, setWarning] = useState(false);
 
     const warningRef = useRef(false);

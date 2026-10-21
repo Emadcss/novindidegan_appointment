@@ -20,11 +20,8 @@ export async function getActiveSpecialties(): Promise<Specialty[]> {
     return (await listSpecialties()).filter((specialty) => specialty.isActive);
 }
 
-/** پزشکانی که همین لحظه در بازهٔ حضور مؤثر خود هستند. */
-async function filterScheduledToday(
-    doctors: Doctor[],
-    date: Date,
-): Promise<Doctor[]> {
+/** پزشکانی از فهرست که همین لحظه در ساعت حضور خود هستند */
+async function filterAvailable(doctors: Doctor[], date: Date): Promise<Doctor[]> {
     const flags = await Promise.all(
         doctors.map((doctor) => isDoctorAvailableNow(doctor.id, date)),
     );
@@ -43,7 +40,7 @@ export async function getAvailableDoctorsForSpecialty(
         (doctor) => doctor.specialtyId === specialtyId && doctor.isActive,
     );
 
-    return filterScheduledToday(candidates, date);
+    return filterAvailable(candidates, date);
 }
 
 /**
@@ -53,7 +50,7 @@ export async function getAvailableSpecialtiesForDate(
     date: Date = getServerNow(),
 ): Promise<SpecialtyWithAvailability[]> {
     const activeDoctors = (await listDoctors()).filter((doctor) => doctor.isActive);
-    const availableDoctors = await filterScheduledToday(activeDoctors, date);
+    const availableDoctors = await filterAvailable(activeDoctors, date);
     const specialties = await getActiveSpecialties();
 
     return specialties

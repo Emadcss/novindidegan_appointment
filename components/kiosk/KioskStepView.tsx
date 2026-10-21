@@ -30,11 +30,11 @@ type KioskStepViewProps = {
 
 /** هر مرحله‌ی ماشین حالت را به کامپوننت خودش وصل می‌کند */
 export default function KioskStepView({
-                                          state,
-                                          dispatch,
-                                          submit,
-                                          reset,
-                                      }: KioskStepViewProps) {
+    state,
+    dispatch,
+    submit,
+    reset,
+}: KioskStepViewProps) {
     const back = () => dispatch({ type: "back" });
 
     function handleIdentity(value: string) {

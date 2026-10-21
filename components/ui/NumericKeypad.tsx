@@ -23,11 +23,11 @@ const KEY_BASE =
  * دکمه‌ی «تأیید» عمداً بیرون از این کامپوننت و به‌صورت دکمه‌ی بزرگ جدا قرار می‌گیرد.
  */
 export default function NumericKeypad({
-                                          value,
-                                          onChange,
-                                          maxLength,
-                                          disabled = false,
-                                      }: NumericKeypadProps) {
+    value,
+    onChange,
+    maxLength,
+    disabled = false,
+}: NumericKeypadProps) {
     const isFull = value.length >= maxLength;
     const isEmpty = value.length === 0;
 

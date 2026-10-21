@@ -17,10 +17,10 @@ type SpecialtySelectionProps = {
 };
 
 export default function SpecialtySelection({
-                                               onSelect,
-                                               onBack,
-                                               onCancel,
-                                           }: SpecialtySelectionProps) {
+    onSelect,
+    onBack,
+    onCancel,
+}: SpecialtySelectionProps) {
     const [specialties, setSpecialties] = useState<SpecialtyWithAvailability[]>([]);
     const [loading, setLoading] = useState(true);
     const [failed, setFailed] = useState(false);

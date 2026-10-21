@@ -29,13 +29,13 @@ function maskIdentifier(value: string): string {
 }
 
 export default function PreviousAppointmentLookup({
-                                                      nationality,
-                                                      identifier,
-                                                      onFound,
-                                                      onNotFound,
-                                                      onBack,
-                                                      onCancel,
-                                                  }: PreviousAppointmentLookupProps) {
+    nationality,
+    identifier,
+    onFound,
+    onNotFound,
+    onBack,
+    onCancel,
+}: PreviousAppointmentLookupProps) {
     const identifierLabel = nationality === "iranian" ? "کد ملی" : "شماره موبایل";
 
     const [error, setError] = useState<string | null>(null);

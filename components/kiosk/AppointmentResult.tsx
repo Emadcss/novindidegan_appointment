@@ -21,17 +21,17 @@ type AppointmentResultProps = {
 };
 
 export default function AppointmentResult({
-                                              status,
-                                              message,
-                                              appointmentNumber,
-                                              appointmentDate,
-                                              appointmentTime,
-                                              doctorName,
-                                              specialtyName,
-                                              onRetry,
-                                              autoCloseMs,
-                                              onHome,
-                                          }: AppointmentResultProps) {
+    status,
+    message,
+    appointmentNumber,
+    appointmentDate,
+    appointmentTime,
+    doctorName,
+    specialtyName,
+    onRetry,
+    autoCloseMs,
+    onHome,
+}: AppointmentResultProps) {
     // در حال ثبت: عمداً دکمه‌ی خروج ندارد تا پاسخ سرور به کاربر بعدی نرسد
     if (status === "loading") {
         return (

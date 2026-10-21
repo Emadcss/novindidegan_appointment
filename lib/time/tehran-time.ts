@@ -50,80 +50,80 @@ export function getTehranDateParts(date: Date): TehranDateParts {
         second: values.second,
     };
 }
-/** تاریخ میلادی تهران با قالب ثابت YYYY-MM-DD */
-export function getTehranDateKey(date: Date): string {
-    const parts = getTehranDateParts(date);
+    /** تاریخ میلادی تهران با قالب ثابت YYYY-MM-DD */
+    export function getTehranDateKey(date: Date): string {
+        const parts = getTehranDateParts(date);
 
-    return `${parts.year}-${parts.month}-${parts.day}`;
-}
-
-/**
- * شماره روز هفته مطابق قرارداد فعلی پروژه:
- * شنبه = 0، یکشنبه = 1، ...، جمعه = 6
- */
-
-export function getTehranWeekday(date: Date): number {
-    const weekdayMap: Record<string, number> = {
-        Sat: 0,
-        Sun: 1,
-        Mon: 2,
-        Tue: 3,
-        Wed: 4,
-        Thu: 5,
-        Fri: 6,
-    };
-
-    const weekday = getTehranDateParts(date).weekday;
-    const result = weekdayMap[weekday];
-
-    if (result === undefined) {
-        throw new Error(`روز هفته نامعتبر است: ${weekday}`);
+        return `${parts.year}-${parts.month}-${parts.day}`;
     }
 
-    return result;
-}
+    /**
+     * شماره روز هفته مطابق قرارداد فعلی پروژه:
+     * شنبه = 0، یکشنبه = 1، ...، جمعه = 6
+     */
 
-/** ساعت تهران با ثانیه، در قالب HH:mm:ss */
-export function getTehranTime(date: Date): string {
-    const parts = getTehranDateParts(date);
+    export function getTehranWeekday(date: Date): number {
+        const weekdayMap: Record<string, number> = {
+            Sat: 0,
+            Sun: 1,
+            Mon: 2,
+            Tue: 3,
+            Wed: 4,
+            Thu: 5,
+            Fri: 6,
+        };
 
-    return `${parts.hour}:${parts.minute}:${parts.second}`;
-}
+        const weekday = getTehranDateParts(date).weekday;
+        const result = weekdayMap[weekday];
 
-/** ساعت تهران بدون ثانیه، در قالب HH:mm */
+        if (result === undefined) {
+            throw new Error(`روز هفته نامعتبر است: ${weekday}`);
+        }
 
-export function getTehranTimeWithoutSeconds(date: Date): string {
-    const parts = getTehranDateParts(date);
-
-    return `${parts.hour}:${parts.minute}`;
-}
-
-/** تبدیل HH:mm یا HH:mm:ss به تعداد ثانیه از ابتدای روز */
-
-export function timeToSeconds(time: string): number {
-    const parts = time.split(":");
-
-    if (parts.length < 2 || parts.length > 3) {
-        throw new Error(`قالب ساعت نامعتبر است: ${time}`);
+        return result;
     }
 
-    const [hours, minutes, seconds = "0"] = parts;
+    /** ساعت تهران با ثانیه، در قالب HH:mm:ss */
+    export function getTehranTime(date: Date): string {
+        const parts = getTehranDateParts(date);
 
-    if (
-        !/^\d{1,2}$/.test(hours) ||
-        !/^\d{1,2}$/.test(minutes) ||
-        !/^\d{1,2}$/.test(seconds)
-    ) {
-        throw new Error(`قالب ساعت نامعتبر است: ${time}`);
+        return `${parts.hour}:${parts.minute}:${parts.second}`;
     }
 
-    const h = Number(hours);
-    const m = Number(minutes);
-    const s = Number(seconds);
+    /** ساعت تهران بدون ثانیه، در قالب HH:mm */
 
-    if (h > 23 || m > 59 || s > 59) {
-        throw new Error(`مقدار ساعت خارج از محدوده است: ${time}`);
+    export function getTehranTimeWithoutSeconds(date: Date): string {
+        const parts = getTehranDateParts(date);
+
+        return `${parts.hour}:${parts.minute}`;
     }
 
-    return h * 3600 + m * 60 + s;
-}
+    /** تبدیل HH:mm یا HH:mm:ss به تعداد ثانیه از ابتدای روز */
+
+    export function timeToSeconds(time: string): number {
+        const parts = time.split(":");
+
+        if (parts.length < 2 || parts.length > 3) {
+            throw new Error(`قالب ساعت نامعتبر است: ${time}`);
+        }
+
+        const [hours, minutes, seconds = "0"] = parts;
+
+        if (
+            !/^\d{1,2}$/.test(hours) ||
+            !/^\d{1,2}$/.test(minutes) ||
+            !/^\d{1,2}$/.test(seconds)
+        ) {
+            throw new Error(`قالب ساعت نامعتبر است: ${time}`);
+        }
+
+        const h = Number(hours);
+        const m = Number(minutes);
+        const s = Number(seconds);
+
+        if (h > 23 || m > 59 || s > 59) {
+            throw new Error(`مقدار ساعت خارج از محدوده است: ${time}`);
+        }
+
+        return h * 3600 + m * 60 + s;
+    }

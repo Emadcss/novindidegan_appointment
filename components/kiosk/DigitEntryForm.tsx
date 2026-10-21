@@ -36,21 +36,21 @@ const INCOMPLETE_HINT_DELAY = 2000;
  * منطق، چیدمان و پیام‌ها یک‌جاست؛ دو فرم فقط تنظیمات می‌دهند.
  */
 export default function DigitEntryForm({
-                                           title,
-                                           hint,
-                                           fieldLabel,
-                                           length,
-                                           groups,
-                                           validate,
-                                           validMessage,
-                                           invalidMessage,
-                                           value = "",
-                                           onSubmit,
-                                           onBack,
-                                           onCancel,
-                                           loading = false,
-                                           error = null,
-                                       }: DigitEntryFormProps & DigitEntryConfig) {
+    title,
+    hint,
+    fieldLabel,
+    length,
+    groups,
+    validate,
+    validMessage,
+    invalidMessage,
+    value = "",
+    onSubmit,
+    onBack,
+    onCancel,
+    loading = false,
+    error = null,
+}: DigitEntryFormProps & DigitEntryConfig) {
     const [digits, setDigits] = useState(() => normalizeDigits(value).slice(0, length));
     const [hintFor, setHintFor] = useState<string | null>(null);
 

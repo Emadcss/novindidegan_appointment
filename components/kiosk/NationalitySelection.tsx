@@ -13,33 +13,33 @@ type NationalitySelectionProps = {
 };
 
 export default function NationalitySelection({
-                                               onSelect,
-                                               onBack,
-                                               onCancel,
-                                               title = "ملیت خود را انتخاب کنید",
-                                             }: NationalitySelectionProps) {
+  onSelect,
+  onBack,
+  onCancel,
+  title = "ملیت خود را انتخاب کنید",
+}: NationalitySelectionProps) {
   return (
-      <Screen
-          title={title}
-          hint="بر اساس ملیت، کد ملی یا شماره موبایل از شما می‌خواهیم"
-          onBack={onBack}
-          onCancel={onCancel}
-      >
-        <div className="grid flex-1 items-stretch gap-6 md:grid-cols-2">
-          <ChoiceCard
-              icon={<IdCardIcon className="size-10" />}
-              title="ایرانی هستم"
-              description="ثبت با کد ملی"
-              onClick={() => onSelect("iranian")}
-          />
+    <Screen
+      title={title}
+      hint="بر اساس ملیت، کد ملی یا شماره موبایل از شما می‌خواهیم"
+      onBack={onBack}
+      onCancel={onCancel}
+    >
+      <div className="grid flex-1 items-stretch gap-6 md:grid-cols-2">
+        <ChoiceCard
+          icon={<IdCardIcon className="size-10" />}
+          title="ایرانی هستم"
+          description="ثبت با کد ملی"
+          onClick={() => onSelect("iranian")}
+        />
 
-          <ChoiceCard
-              icon={<PhoneIcon className="size-10" />}
-              title="ایرانی نیستم"
-              description="ثبت با شماره موبایل ایران"
-              onClick={() => onSelect("foreign")}
-          />
-        </div>
-      </Screen>
+        <ChoiceCard
+          icon={<PhoneIcon className="size-10" />}
+          title="ایرانی نیستم"
+          description="ثبت با شماره موبایل ایران"
+          onClick={() => onSelect("foreign")}
+        />
+      </div>
+    </Screen>
   );
 }
