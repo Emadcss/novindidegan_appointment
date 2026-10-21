@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import Button from "@/components/ui/Button";
 import DigitField from "@/components/ui/DigitField";
@@ -53,6 +53,7 @@ export default function DigitEntryForm({
 }: DigitEntryFormProps & DigitEntryConfig) {
     const [digits, setDigits] = useState(() => normalizeDigits(value).slice(0, length));
     const [hintFor, setHintFor] = useState<string | null>(null);
+    const [keyboardInset, setKeyboardInset] = useState(0);
 
     const isComplete = digits.length === length;
     const isValid = isComplete && validate(digits);
@@ -67,6 +68,28 @@ export default function DigitEntryForm({
         const timer = window.setTimeout(() => setHintFor(digits), INCOMPLETE_HINT_DELAY);
         return () => window.clearTimeout(timer);
     }, [digits, isComplete]);
+
+    useEffect(() => {
+        const viewport = window.visualViewport;
+        if (!viewport) return;
+
+        const updateKeyboardInset = () => {
+            setKeyboardInset(
+                Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop),
+            );
+        };
+
+        updateKeyboardInset();
+        viewport.addEventListener("resize", updateKeyboardInset);
+        viewport.addEventListener("scroll", updateKeyboardInset);
+        window.addEventListener("resize", updateKeyboardInset);
+
+        return () => {
+            viewport.removeEventListener("resize", updateKeyboardInset);
+            viewport.removeEventListener("scroll", updateKeyboardInset);
+            window.removeEventListener("resize", updateKeyboardInset);
+        };
+    }, []);
 
     function handleChange(next: string) {
         if (loading) return;
@@ -100,7 +123,7 @@ export default function DigitEntryForm({
 
     return (
         <Screen title={title} onBack={onBack} onCancel={onCancel} navDisabled={loading}>
-            <div className="grid flex-1 content-start items-center gap-5 sm:gap-10 lg:grid-cols-[1fr_22rem]">
+            <div className="grid flex-1 content-start items-center gap-5 pb-24 sm:gap-10 sm:pb-0 lg:grid-cols-[1fr_22rem]">
                 <div className="flex flex-col items-center gap-3 sm:gap-5 short:sm:gap-3">
                     <p className="text-center text-base text-ink-muted sm:text-body">{hint}</p>
 
@@ -114,6 +137,7 @@ export default function DigitEntryForm({
                         spellCheck={false}
                         dir="ltr"
                         aria-label={fieldLabel}
+                        aria-describedby="digit-entry-mobile-hint"
                         value={toPersianDigits(digits)}
                         maxLength={length}
                         disabled={loading}
@@ -132,6 +156,12 @@ export default function DigitEntryForm({
                                     : "border-line-strong text-ink focus:border-brand"
                         }`}
                     />
+                    <p
+                        id="digit-entry-mobile-hint"
+                        className="text-center text-sm font-bold text-brand sm:hidden"
+                    >
+                        برای باز شدن صفحه‌کلید عددی گوشی، کادر بالا را لمس کنید
+                    </p>
 
                     <div className="hidden sm:block">
                         <DigitField
@@ -173,6 +203,7 @@ export default function DigitEntryForm({
                     </div>
 
                     <Button
+                        className="hidden sm:inline-flex"
                         size="lg"
                         fullWidth
                         disabled={!isValid}
@@ -182,6 +213,24 @@ export default function DigitEntryForm({
                         تأیید و ادامه
                     </Button>
                 </div>
+            </div>
+            <div
+                className="fixed inset-x-4 z-30 sm:hidden"
+                style={
+                    {
+                        bottom: `calc(${keyboardInset}px + 5.5rem + env(safe-area-inset-bottom))`,
+                    } as CSSProperties
+                }
+            >
+                <Button
+                    size="lg"
+                    fullWidth
+                    disabled={!isValid}
+                    loading={loading}
+                    onClick={handleSubmit}
+                >
+                    تأیید و ادامه
+                </Button>
             </div>
         </Screen>
     );
