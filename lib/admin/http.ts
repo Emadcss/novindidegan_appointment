@@ -49,13 +49,20 @@ function hostnameOf(hostHeader: string): string {
  * و بستن دسترسی شبکه است.
  */
 export function assertAdminHost(request: NextRequest): void {
-    const allowed = (process.env.ADMIN_ALLOWED_HOSTS ?? "localhost,127.0.0.1,[::1]")
+    const configuredHosts = (process.env.ADMIN_ALLOWED_HOSTS ?? "localhost,127.0.0.1,[::1]")
         .split(",")
         .map((item) => item.trim().toLowerCase())
         .filter(Boolean);
+    const vercelProductionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ?.trim()
+        .toLowerCase();
+    const allowed = new Set([
+        ...configuredHosts,
+        ...(vercelProductionHost ? [vercelProductionHost] : []),
+    ]);
     const host = hostnameOf(request.headers.get("host") ?? "");
 
-    if (!allowed.includes(host)) {
+    if (!allowed.has(host)) {
         throw new ApiError(
             403,
             "HOST_NOT_ALLOWED",
