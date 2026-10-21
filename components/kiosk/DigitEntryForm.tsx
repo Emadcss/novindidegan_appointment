@@ -192,7 +192,14 @@ export default function DigitEntryForm({
                     )}
                 </div>
 
-                <div className="mx-auto flex w-full max-w-sm flex-col gap-3 sm:gap-4 short:sm:gap-3">
+                <div
+                    className="kiosk-portrait-digit-entry-action fixed inset-x-4 z-30 mx-auto flex w-full max-w-sm flex-col gap-3 sm:static sm:gap-4 short:sm:gap-3"
+                    style={
+                        {
+                            bottom: `calc(${keyboardInset}px + 5.5rem + env(safe-area-inset-bottom))`,
+                        } as CSSProperties
+                    }
+                >
                     <div className="hidden sm:block">
                         <NumericKeypad
                             value={digits}
@@ -201,9 +208,7 @@ export default function DigitEntryForm({
                             disabled={loading}
                         />
                     </div>
-
                     <Button
-                        className="hidden sm:inline-flex"
                         size="lg"
                         fullWidth
                         disabled={!isValid}
@@ -213,24 +218,6 @@ export default function DigitEntryForm({
                         تأیید و ادامه
                     </Button>
                 </div>
-            </div>
-            <div
-                className="fixed inset-x-4 z-30 sm:hidden"
-                style={
-                    {
-                        bottom: `calc(${keyboardInset}px + 5.5rem + env(safe-area-inset-bottom))`,
-                    } as CSSProperties
-                }
-            >
-                <Button
-                    size="lg"
-                    fullWidth
-                    disabled={!isValid}
-                    loading={loading}
-                    onClick={handleSubmit}
-                >
-                    تأیید و ادامه
-                </Button>
             </div>
         </Screen>
     );
