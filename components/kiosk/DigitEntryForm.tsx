@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import Button from "@/components/ui/Button";
 import DigitField from "@/components/ui/DigitField";
@@ -54,12 +54,14 @@ export default function DigitEntryForm({
     const [digits, setDigits] = useState(() => normalizeDigits(value).slice(0, length));
     const [hintFor, setHintFor] = useState<string | null>(null);
     const [keyboardInset, setKeyboardInset] = useState(0);
+    const [inputFocused, setInputFocused] = useState(false);
 
     const isComplete = digits.length === length;
     const isValid = isComplete && validate(digits);
     const isInvalidComplete = isComplete && !isValid;
     const remaining = length - digits.length;
     const showIncompleteHint = hintFor === digits && digits.length > 0 && !isComplete;
+    const showTouchHint = !inputFocused && keyboardInset < 100;
 
     // اگر کاربر مکث کند، یادآوری می‌کنیم چند رقم مانده است
     useEffect(() => {
@@ -123,10 +125,12 @@ export default function DigitEntryForm({
 
     return (
         <Screen title={title} onBack={onBack} onCancel={onCancel} navDisabled={loading}>
-            <div className="kiosk-portrait-digit-entry grid flex-1 content-start items-center gap-5 pb-24 sm:gap-10 sm:pb-0 lg:grid-cols-[1fr_22rem]">
-                <div className="flex flex-col items-center gap-3 sm:gap-5 short:sm:gap-3">
-                    <p className="text-center text-base text-ink-muted sm:text-body">{hint}</p>
+            <div className={`digit-entry-form kiosk-portrait-digit-entry grid flex-1 content-start items-center gap-5 ${isValid ? "is-valid" : ""}`}>
+                <p className="digit-entry-description text-center text-base text-ink-muted sm:text-body">
+                    {hint}
+                </p>
 
+                <div className="digit-entry-input flex w-full flex-col items-center gap-3 sm:gap-5 short:sm:gap-3">
                     <input
                         type="text"
                         inputMode="numeric"
@@ -141,6 +145,8 @@ export default function DigitEntryForm({
                         value={toPersianDigits(digits)}
                         maxLength={length}
                         disabled={loading}
+                        onFocus={() => setInputFocused(true)}
+                        onBlur={() => setInputFocused(false)}
                         onChange={(event) => handleChange(event.target.value)}
                         onKeyDown={(event) => {
                             if (event.key === "Enter") {
@@ -148,7 +154,7 @@ export default function DigitEntryForm({
                                 handleSubmit();
                             }
                         }}
-                        className={`w-full max-w-sm rounded-control border-2 bg-surface px-3 py-3 text-center text-xl font-bold tracking-[0.25em] tabular-nums outline-none disabled:opacity-60 sm:hidden ${
+                        className={`digit-entry-native-input w-full max-w-sm rounded-control border-2 bg-surface px-3 py-3 text-center text-xl font-bold tracking-[0.25em] tabular-nums outline-none disabled:opacity-60 sm:hidden ${
                             isValid
                                 ? "border-success bg-success-soft text-success"
                                 : isInvalidComplete
@@ -156,13 +162,6 @@ export default function DigitEntryForm({
                                     : "border-line-strong text-ink focus:border-brand"
                         }`}
                     />
-                    <p
-                        id="digit-entry-mobile-hint"
-                        className="text-center text-sm font-bold text-brand sm:hidden"
-                    >
-                        برای باز شدن صفحه‌کلید عددی گوشی، کادر بالا را لمس کنید
-                    </p>
-
                     <div className="hidden sm:block">
                         <DigitField
                             value={digits}
@@ -172,34 +171,35 @@ export default function DigitEntryForm({
                             status={isValid ? "valid" : isInvalidComplete ? "invalid" : "idle"}
                         />
                     </div>
-
-                    <p
-                        role="status"
-                        aria-live="polite"
-                        className={`flex min-h-8 items-center gap-2 text-base font-bold sm:min-h-10 sm:text-body ${message.tone}`}
-                    >
-                        {message.icon}
-                        {message.text}
-                    </p>
-
-                    {error && (
-                        <p
-                            role="alert"
-                            className="w-full max-w-xl rounded-control bg-danger-soft px-5 py-4 text-center text-body font-bold text-danger"
-                        >
-                            {error}
-                        </p>
-                    )}
                 </div>
 
-                <div
-                    className="kiosk-portrait-digit-entry-action fixed inset-x-4 z-30 mx-auto flex w-full max-w-sm flex-col gap-3 sm:static sm:gap-4 short:sm:gap-3"
-                    style={
-                        {
-                            bottom: `calc(${keyboardInset}px + 5.5rem + env(safe-area-inset-bottom))`,
-                        } as CSSProperties
-                    }
+                <p
+                    id="digit-entry-mobile-hint"
+                    className="digit-entry-touch-hint text-center text-sm font-bold text-brand sm:hidden"
+                    hidden={!showTouchHint}
                 >
+                    برای باز شدن صفحه‌کلید عددی گوشی، کادر بالا را لمس کنید
+                </p>
+
+                <p
+                    role="status"
+                    aria-live="polite"
+                    className={`digit-entry-status flex min-h-8 items-center justify-center gap-2 text-base font-bold sm:min-h-10 sm:text-body ${message.tone}`}
+                >
+                    {message.icon}
+                    {message.text}
+                </p>
+
+                {error && (
+                    <p
+                        role="alert"
+                        className="digit-entry-error w-full max-w-xl rounded-control bg-danger-soft px-5 py-4 text-center text-body font-bold text-danger"
+                    >
+                        {error}
+                    </p>
+                )}
+
+                <div className="digit-entry-action kiosk-portrait-digit-entry-action mx-auto flex w-full max-w-sm flex-col gap-3 sm:gap-4 short:sm:gap-3">
                     <div className="hidden sm:block">
                         <NumericKeypad
                             value={digits}
@@ -209,13 +209,19 @@ export default function DigitEntryForm({
                         />
                     </div>
                     <Button
+                        className="digit-entry-submit"
                         size="lg"
                         fullWidth
                         disabled={!isValid}
                         loading={loading}
                         onClick={handleSubmit}
+                        aria-label="تأیید و ادامه"
                     >
-                        تأیید و ادامه
+                        <span className="digit-entry-submit-mobile sm:hidden">
+                            <CheckIcon className="size-6" />
+                            تأیید
+                        </span>
+                        <span className="hidden sm:inline">تأیید و ادامه</span>
                     </Button>
                 </div>
             </div>

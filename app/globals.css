@@ -67,12 +67,24 @@
 
   .kiosk-portrait-digit-entry {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "description"
+      "input"
+      "touch-hint"
+      "status"
+      "error"
+      "action";
     gap: 2rem;
     padding-bottom: 0;
   }
 
   .kiosk-portrait-digit-entry > div:last-child {
     max-width: 34rem;
+  }
+
+  .digit-entry-action {
+    display: flex;
+    grid-area: action;
   }
 
   .kiosk-portrait-result-card > div:nth-child(2) {
@@ -87,6 +99,149 @@
   .kiosk-portrait-welcome {
     gap: clamp(2rem, 7vh, 5rem);
     padding-block: 2rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .digit-entry-form {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "description"
+      "input"
+      "touch-hint"
+      "status"
+      "error";
+    gap: 0.75rem;
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+
+  .digit-entry-form.is-valid {
+    grid-template-columns: minmax(0, 1fr) 4.5rem;
+    grid-template-areas:
+      "description description"
+      "input action"
+      "touch-hint touch-hint"
+      "status status"
+      "error error";
+  }
+
+  .digit-entry-description {
+    grid-area: description;
+  }
+
+  .digit-entry-input {
+    grid-area: input;
+    min-width: 0;
+  }
+
+  .digit-entry-native-input {
+    min-width: 0;
+  }
+
+  .digit-entry-touch-hint {
+    grid-area: touch-hint;
+  }
+
+  .digit-entry-status {
+    grid-area: status;
+  }
+
+  .digit-entry-error {
+    grid-area: error;
+  }
+
+  .digit-entry-action {
+    display: contents;
+  }
+
+  .digit-entry-submit {
+    grid-area: action;
+    justify-self: center;
+    width: 4.25rem;
+    min-height: 4.25rem;
+    aspect-ratio: 1;
+    padding: 0.25rem;
+  }
+
+  .digit-entry-submit-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .digit-entry-form:not(.is-valid) .digit-entry-submit {
+    display: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .digit-entry-form {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    grid-template-areas:
+      "description action"
+      "input action"
+      "status action"
+      "error action";
+    gap: 2rem;
+    padding-bottom: 0;
+  }
+
+  .digit-entry-description,
+  .digit-entry-input,
+  .digit-entry-status,
+  .digit-entry-error,
+  .digit-entry-action {
+    grid-area: auto;
+  }
+
+  .digit-entry-description {
+    grid-area: description;
+  }
+
+  .digit-entry-input {
+    grid-area: input;
+  }
+
+  .digit-entry-status {
+    grid-area: status;
+  }
+
+  .digit-entry-error {
+    grid-area: error;
+  }
+
+  .digit-entry-action {
+    grid-area: action;
+    display: flex;
+    width: 100%;
+    max-width: 22rem;
+    align-self: center;
+  }
+
+  .digit-entry-submit {
+    grid-area: auto;
+    width: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@media (orientation: portrait) and (min-width: 640px) {
+  .digit-entry-form {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "description"
+      "input"
+      "touch-hint"
+      "status"
+      "error"
+      "action";
+  }
+
+  .digit-entry-action {
+    max-width: 34rem;
   }
 }
 
