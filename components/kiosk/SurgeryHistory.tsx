@@ -17,7 +17,7 @@ export default function SurgeryHistory({ onSelect, onBack, onCancel }: SurgeryHi
             onBack={onBack}
             onCancel={onCancel}
         >
-            <div className="grid flex-1 items-stretch gap-6 md:grid-cols-2">
+            <div className="kiosk-portrait-primary-options grid flex-1 items-stretch gap-6 md:grid-cols-2">
                 <ChoiceCard title="بله، داشته‌ام" onClick={() => onSelect(true)} />
                 <ChoiceCard title="خیر، نداشته‌ام" onClick={() => onSelect(false)} />
             </div>

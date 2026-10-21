@@ -123,7 +123,7 @@ export default function DigitEntryForm({
 
     return (
         <Screen title={title} onBack={onBack} onCancel={onCancel} navDisabled={loading}>
-            <div className="grid flex-1 content-start items-center gap-5 pb-24 sm:gap-10 sm:pb-0 lg:grid-cols-[1fr_22rem]">
+            <div className="kiosk-portrait-digit-entry grid flex-1 content-start items-center gap-5 pb-24 sm:gap-10 sm:pb-0 lg:grid-cols-[1fr_22rem]">
                 <div className="flex flex-col items-center gap-3 sm:gap-5 short:sm:gap-3">
                     <p className="text-center text-base text-ink-muted sm:text-body">{hint}</p>
 

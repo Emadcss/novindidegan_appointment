@@ -24,7 +24,7 @@ export default function MainChoiceStep({
             onBack={onBack}
             onCancel={onCancel}
         >
-            <div className="grid flex-1 items-stretch gap-6 md:grid-cols-2">
+            <div className="kiosk-portrait-primary-options grid flex-1 items-stretch gap-6 md:grid-cols-2">
                 <ChoiceCard
                     variant="featured"
                     icon={<PlusTicketIcon className="size-10" />}

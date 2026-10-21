@@ -3,6 +3,93 @@
 /* صفحه‌های کم‌ارتفاع (لپ‌تاپ ۱۵ اینچ، مرورگر با نوار آدرس) */
 @custom-variant short (@media (max-height: 900px));
 
+@media (orientation: portrait) and (min-width: 640px) {
+  .kiosk-portrait-content {
+    max-width: 78rem;
+    padding-inline: clamp(2rem, 5vw, 5rem);
+  }
+
+  .kiosk-portrait-header {
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+  }
+
+  .kiosk-portrait-header > div:first-child {
+    justify-content: center;
+  }
+
+  .kiosk-portrait-header > div:last-child {
+    align-items: center;
+  }
+
+  .kiosk-portrait-header > div:last-child > div {
+    align-items: center;
+  }
+
+  .kiosk-portrait-screen-heading {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .kiosk-portrait-screen-heading h1,
+  .kiosk-portrait-screen-heading p {
+    margin-inline: auto;
+    max-width: 52rem;
+  }
+
+  .kiosk-portrait-progress {
+    max-width: 58rem;
+    margin-bottom: 2rem;
+  }
+
+  .kiosk-portrait-primary-options {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 58rem;
+    margin-inline: auto;
+    gap: 1.5rem;
+  }
+
+  .kiosk-portrait-primary-options > button {
+    min-height: clamp(13rem, 18vh, 20rem);
+  }
+
+  .kiosk-portrait-specialty-grid,
+  .kiosk-portrait-doctor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: 68rem;
+    margin-inline: auto;
+    gap: 1.25rem;
+  }
+
+  .kiosk-portrait-digit-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding-bottom: 0;
+  }
+
+  .kiosk-portrait-digit-entry > div:last-child {
+    max-width: 34rem;
+  }
+
+  .kiosk-portrait-result-card > div:nth-child(2) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kiosk-portrait-result-card > div:nth-child(2) > div:first-child {
+    border-bottom: 2px dashed var(--color-line);
+    border-left: 0;
+  }
+
+  .kiosk-portrait-welcome {
+    gap: clamp(2rem, 7vh, 5rem);
+    padding-block: 2rem;
+  }
+}
+
 /* =========================================================
    توکن‌های طراحی کیوسک نوین دیدگان
    منبع واحد رنگ، تایپوگرافی، شعاع و سایه.

@@ -53,7 +53,7 @@ export default function Header({ compact = false }: HeaderProps) {
 
   return (
     <header
-      className={`flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 short:px-6 sm:flex-nowrap sm:gap-6 sm:px-8 ${
+    className={`kiosk-portrait-header flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 short:px-6 sm:flex-nowrap sm:gap-6 sm:px-8 ${
         compact ? "py-2 short:py-1" : "py-3 sm:py-4"
       }`}
     >

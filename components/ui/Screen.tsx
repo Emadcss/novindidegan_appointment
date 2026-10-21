@@ -26,8 +26,8 @@ export default function Screen({
     children,
 }: ScreenProps) {
     return (
-        <section className="flex flex-1 flex-col">
-            <header className="mb-5 sm:mb-8 short:sm:mb-4">
+        <section className="kiosk-portrait-screen flex flex-1 flex-col">
+            <header className="kiosk-portrait-screen-heading mb-5 sm:mb-8 short:sm:mb-4">
                 {context && (
                     <p className="mb-2 inline-block max-w-full rounded-full bg-brand-soft px-3 py-1 text-sm font-bold text-brand sm:mb-3 sm:px-5 sm:py-1.5 sm:text-hint">
                         {context}

@@ -21,7 +21,7 @@ export default function KioskProgress({ items, activeIndex }: KioskProgressProps
     if (items.length <= 1) return null;
 
     return (
-        <nav aria-label="مراحل دریافت نوبت" className="mx-auto mb-4 w-full max-w-4xl sm:mb-8 short:sm:mb-3">
+        <nav aria-label="مراحل دریافت نوبت" className="kiosk-portrait-progress mx-auto mb-4 w-full max-w-4xl sm:mb-8 short:sm:mb-3">
             <p className="sr-only">
                 مرحله {toPersianDigits(activeIndex + 1)} از {toPersianDigits(items.length)}
             </p>

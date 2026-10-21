@@ -10,7 +10,7 @@ export default function WelcomeStep({ onStart }: WelcomeStepProps) {
             type="button"
             onClick={onStart}
             aria-label="برای شروع صفحه را لمس کنید"
-            className="flex flex-1 flex-col items-center justify-center gap-10 text-center"
+            className="kiosk-portrait-welcome flex flex-1 flex-col items-center justify-center gap-10 text-center"
         >
             <span className="flex flex-col gap-3">
                 <span className="text-display font-bold text-ink">

@@ -71,7 +71,7 @@ export default function AppointmentResult({
 
     return (
         <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-4 py-2">
-            <div className="w-full overflow-hidden rounded-card bg-surface shadow-card">
+            <div className="kiosk-portrait-result-card w-full overflow-hidden rounded-card bg-surface shadow-card">
                 <div className="flex items-center gap-2 bg-success px-4 py-3 text-lg font-bold text-white sm:gap-3 sm:px-8 sm:py-4 sm:text-title">
                     <CheckIcon className="size-6 sm:size-8" />
                     نوبت شما ثبت شد
