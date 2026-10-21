@@ -68,7 +68,7 @@ type PageKey =
 
 const PAGES: { key: PageKey; label: string; adminOnly?: boolean }[] = [
   { key: "dashboard", label: "داشبورد" },
-  { key: "monitoring", label: "پایش کیوسک‌ها" },
+  { key: "monitoring", label: "مانیتورینگ" },
   { key: "kiosks", label: "کیوسک‌ها" },
   { key: "appointments", label: "نوبت‌ها" },
   { key: "reports", label: "گزارش‌ها" },
@@ -150,7 +150,7 @@ function AuthForm({
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-5 p-6">
+    <main className="admin-auth-page mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-5 p-6">
       <h1 className="text-center text-2xl font-bold text-brand">
         {mode === "setup"
           ? "راه‌اندازی اولیه‌ی پنل ادمین"
@@ -164,7 +164,7 @@ function AuthForm({
       )}
       <form
         onSubmit={submit}
-        className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6 shadow-card">
+        className="admin-auth-form flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6 shadow-card">
         <Field
           label="نام کاربری"
           hint={
@@ -354,7 +354,12 @@ function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
                 setSoundOn(!soundOn);
                 if (!soundOn) beep();
               }}>
-              {soundOn ? "🔔 صدای هشدار روشن" : "🔕 فعال‌سازی صدای هشدار"}
+              <span className="admin-sound-label-desktop">
+                {soundOn ? "🔔 صدای هشدار روشن" : "🔕 فعال‌سازی صدای هشدار"}
+              </span>
+              <span className="admin-sound-label-mobile">
+                {soundOn ? "🔔 صدا" : "🔕 صدا"}
+              </span>
             </Btn>
             <p className="text-ink-muted">
               {user.displayName} ({user.role === "admin" ? "مدیر" : "ناظر"})
