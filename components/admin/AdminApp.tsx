@@ -320,14 +320,14 @@ function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
         reload: monitoring.reload,
         error: monitoring.error,
       }}>
-      <div className="flex min-h-dvh select-text bg-paper text-ink">
-        <aside className="sticky top-0 flex h-dvh w-56 shrink-0 flex-col gap-1 border-l border-line bg-surface p-4">
-          <div className="mb-4">
+      <div className="admin-shell flex min-h-dvh select-text bg-paper text-ink">
+        <aside className="admin-sidebar sticky top-0 flex h-dvh w-56 shrink-0 flex-col gap-1 border-l border-line bg-surface p-4">
+          <div className="admin-brand mb-4">
             <p className="font-logo text-xl text-brand">نوین دیدگان</p>
             <p className="text-xs text-ink-muted">پنل مدیریت کیوسک‌ها</p>
           </div>
 
-          <nav className="flex flex-col gap-1" aria-label="منوی اصلی">
+          <nav className="admin-nav flex flex-col gap-1" aria-label="منوی اصلی">
             {items.map((item) => (
               <button
                 key={item.key}
@@ -346,7 +346,7 @@ function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
             ))}
           </nav>
 
-          <div className="mt-auto flex flex-col gap-2 text-xs">
+          <div className="admin-actions mt-auto flex flex-col gap-2 text-xs">
             <Btn
               small
               variant={soundOn ? "primary" : "secondary"}
@@ -373,7 +373,7 @@ function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 p-6">
+        <main className="admin-main min-w-0 flex-1 p-6">
           {monitoring.error && (
             <div className="mb-4">
               <Notice tone="error">{monitoring.error}</Notice>

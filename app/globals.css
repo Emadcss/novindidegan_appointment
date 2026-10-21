@@ -3,7 +3,108 @@
 /* صفحه‌های کم‌ارتفاع (لپ‌تاپ ۱۵ اینچ، مرورگر با نوار آدرس) */
 @custom-variant short (@media (max-height: 900px));
 
+@media (orientation: portrait) {
+  .admin-shell {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    position: sticky;
+    z-index: 40;
+    top: 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: none;
+    gap: 0.65rem;
+    border-right: 0;
+    border-left: 0;
+    border-bottom: 1px solid var(--color-line);
+    padding: calc(0.75rem + env(safe-area-inset-top)) 0.75rem 0.75rem;
+  }
+
+  .admin-brand {
+    margin: 0;
+  }
+
+  .admin-brand > p:first-child {
+    font-size: 1.125rem;
+  }
+
+  .admin-nav {
+    flex-direction: row;
+    gap: 0.4rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-block: 0.15rem 0.35rem;
+    scrollbar-width: thin;
+  }
+
+  .admin-nav > button {
+    min-height: 2.75rem;
+    flex: 0 0 auto;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .admin-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.5rem;
+    margin-top: 0;
+  }
+
+  .admin-actions > p {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .admin-main {
+    width: 100%;
+    padding: clamp(0.75rem, 3vw, 1.5rem);
+  }
+
+  .admin-main > * {
+    min-width: 0;
+  }
+
+  .admin-card {
+    padding: clamp(0.75rem, 2.5vw, 1.25rem);
+  }
+
+  .admin-table {
+    min-width: 48rem;
+  }
+}
+
 @media (orientation: portrait) and (min-width: 640px) {
+  .admin-sidebar {
+    padding: 1rem clamp(1.25rem, 3vw, 2.5rem);
+  }
+
+  .admin-brand > p:first-child {
+    font-size: 1.35rem;
+  }
+
+  .admin-nav > button {
+    padding-inline: 1rem;
+  }
+
+  .admin-actions {
+    flex-wrap: nowrap;
+  }
+
+  .admin-actions > p {
+    flex: 1 1 auto;
+    text-align: left;
+  }
+
+  .admin-main {
+    padding: clamp(1.5rem, 4vw, 3rem);
+  }
+
   .kiosk-portrait-content {
     max-width: 78rem;
     padding-inline: clamp(2rem, 5vw, 5rem);
@@ -242,6 +343,31 @@
 
   .digit-entry-action {
     max-width: 34rem;
+  }
+}
+
+@media (max-width: 380px) and (orientation: portrait) {
+  .admin-sidebar {
+    padding-inline: 0.6rem;
+  }
+
+  .admin-actions > p {
+    font-size: 0.65rem;
+  }
+
+  .admin-main {
+    padding: 0.65rem;
+  }
+
+  .admin-card > header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 639px) and (orientation: portrait) {
+  .admin-table {
+    min-width: 38rem;
   }
 }
 

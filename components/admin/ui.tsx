@@ -25,7 +25,7 @@ export function Card({
 }) {
   return (
     <section
-      className={`rounded-2xl border border-line bg-surface p-5 shadow-card ${className}`}>
+      className={`admin-card rounded-2xl border border-line bg-surface p-5 shadow-card ${className}`}>
       {(title || actions) && (
         <header className="mb-4 flex items-center justify-between gap-3">
           {title && <h2 className="text-lg font-bold text-ink">{title}</h2>}
@@ -212,7 +212,7 @@ export function Table({
 }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="admin-table w-full text-sm">
         <thead>
           <tr className="border-b border-line text-right text-xs text-ink-muted">
             {head.map((title) => (
