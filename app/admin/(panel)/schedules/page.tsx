@@ -32,16 +32,16 @@ type Shift = {
 type ApiError = { error?: string };
 
 const weekdays = [
-    { value: 6, label: "شنبه" },
-    { value: 0, label: "یکشنبه" },
-    { value: 1, label: "دوشنبه" },
-    { value: 2, label: "سه‌شنبه" },
-    { value: 3, label: "چهارشنبه" },
-    { value: 4, label: "پنجشنبه" },
-    { value: 5, label: "جمعه" },
+    { value: 0, label: "شنبه" },
+    { value: 1, label: "یکشنبه" },
+    { value: 2, label: "دوشنبه" },
+    { value: 3, label: "سه‌شنبه" },
+    { value: 4, label: "چهارشنبه" },
+    { value: 5, label: "پنجشنبه" },
+    { value: 6, label: "جمعه" },
 ];
 
-const defaultDays = [6, 0, 1, 2, 3, 4];
+const defaultDays = [0, 1, 2, 3, 4, 5];
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const inputClass =
